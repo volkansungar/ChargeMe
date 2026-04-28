@@ -91,17 +91,21 @@ router.put('/:id', adminAuth, (req, res) => {
   res.json(station);
 });
 
-// PUT /api/stations/:stationId/chargers/:chargerId - Update charger price
+// PUT /api/stations/:stationId/chargers/:chargerId - Update charger price & hardware
 router.put('/:stationId/chargers/:chargerId', adminAuth, (req, res) => {
   const db = getDb();
-  const { price_per_kwh } = req.body;
+  const { price_per_kwh, power_kw, connector_type } = req.body;
   
   if (!price_per_kwh || price_per_kwh <= 0) {
     return res.status(400).json({ error: 'Valid price per kWh is required' });
   }
 
-  db.prepare('UPDATE chargers SET price_per_kwh = ? WHERE id = ? AND station_id = ?').run(
-    price_per_kwh, req.params.chargerId, req.params.stationId
+  const current = db.prepare('SELECT * FROM chargers WHERE id = ?').get(req.params.chargerId);
+  const newPower = power_kw || current.power_kw;
+  const newConnector = connector_type || current.connector_type;
+
+  db.prepare('UPDATE chargers SET price_per_kwh = ?, power_kw = ?, connector_type = ? WHERE id = ? AND station_id = ?').run(
+    price_per_kwh, newPower, newConnector, req.params.chargerId, req.params.stationId
   );
   
   const charger = db.prepare('SELECT * FROM chargers WHERE id = ?').get(req.params.chargerId);

@@ -4,6 +4,8 @@ import { loadGoogleMaps, calculateDistance } from '../utils/maps.js';
 let mapInstance = null;
 let markers = [];
 let userLocation = { lat: 38.4237, lng: 27.1428 }; // Default: İzmir Center
+let directionsService = null;
+let directionsRenderer = null;
 
 export async function renderMap(container) {
   container.innerHTML = `
@@ -21,6 +23,7 @@ export async function renderMap(container) {
         <option value="150">150 kW+</option>
       </select>
       <button class="btn btn-outline" id="btn-locate">📍 Find Me</button>
+      <button class="btn btn-outline" id="btn-clear-route" style="display: none;">❌ Clear Route</button>
     </div>
     
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-6);">
@@ -60,6 +63,13 @@ export async function renderMap(container) {
           () => window.showToast('Location access denied', 'error')
         );
       }
+    });
+
+    document.getElementById('btn-clear-route').addEventListener('click', (e) => {
+      if (directionsRenderer) directionsRenderer.setDirections({routes: []});
+      e.target.style.display = 'none';
+      mapInstance.setCenter(userLocation);
+      mapInstance.setZoom(12);
     });
 
   } catch (err) {
@@ -115,6 +125,13 @@ function initMap(googleMaps) {
         stylers: [{ color: "#17263c" }],
       },
     ]
+  });
+
+  directionsService = new googleMaps.DirectionsService();
+  directionsRenderer = new googleMaps.DirectionsRenderer({
+    map: mapInstance,
+    suppressMarkers: true,
+    polylineOptions: { strokeColor: '#3B82F6', strokeWeight: 5 }
   });
 }
 
@@ -230,7 +247,10 @@ window.showStationDetail = async (id) => {
     const html = `
       <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
         <h2 class="text-gradient" style="margin: 0;">${station.name}</h2>
-        <button class="btn btn-outline text-amber" style="padding: 4px 8px; font-size: 0.8rem;" onclick="reportIssue(${station.id})">🚩 Report Issue</button>
+        <div>
+          <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem; margin-right: 4px;" onclick="getDirections(${station.lat}, ${station.lng})">🗺️ Directions</button>
+          <button class="btn btn-outline text-amber" style="padding: 4px 8px; font-size: 0.8rem;" onclick="reportIssue(${station.id})">🚩 Report Issue</button>
+        </div>
       </div>
       <p class="text-secondary" style="margin-bottom: var(--spacing-4);">📍 ${station.address}</p>
       <p style="margin-bottom: var(--spacing-4);">🕒 Hours: ${station.operating_hours}</p>
@@ -255,4 +275,20 @@ window.reportIssue = async (stationId) => {
   } catch (err) {
     window.showToast(err.message, 'error');
   }
+};
+
+window.getDirections = (lat, lng) => {
+  window.closeModal();
+  directionsService.route({
+    origin: userLocation,
+    destination: { lat, lng },
+    travelMode: window.google.maps.TravelMode.DRIVING
+  }, (response, status) => {
+    if (status === 'OK') {
+      directionsRenderer.setDirections(response);
+      document.getElementById('btn-clear-route').style.display = 'inline-block';
+    } else {
+      window.showToast('Could not find route: ' + status, 'error');
+    }
+  });
 };

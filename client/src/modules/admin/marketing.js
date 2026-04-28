@@ -27,17 +27,9 @@ export async function renderAdminMarketing(container) {
       <!-- Usage Habits -->
       <div class="glass-card">
         <h3 style="margin-bottom: var(--spacing-4);">Usage Habits (Time of Day)</h3>
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-          <thead>
-            <tr style="border-bottom: 1px solid var(--glass-border);">
-              <th style="padding: var(--spacing-2); color: var(--text-muted); font-weight: 500;">Time Window</th>
-              <th style="padding: var(--spacing-2); color: var(--text-muted); font-weight: 500; text-align: right;">Sessions Booked</th>
-            </tr>
-          </thead>
-          <tbody id="marketing-habits">
-            <tr><td colspan="2" style="text-align: center; padding: 1rem;"><div class="spinner" style="margin: 0 auto;"></div></td></tr>
-          </tbody>
-        </table>
+        <div style="width: 100%; height: 250px;">
+          <canvas id="habitsChart"></canvas>
+        </div>
       </div>
     </div>
   `;
@@ -61,16 +53,32 @@ async function loadMarketingData() {
       `).join('');
     }
 
-    const habTbody = document.getElementById('marketing-habits');
-    if (data.timeHabits.length === 0) {
-      habTbody.innerHTML = '<tr><td colspan="2" class="text-muted" style="text-align: center; padding: 1rem;">No booking data available yet.</td></tr>';
-    } else {
-      habTbody.innerHTML = data.timeHabits.map(h => `
-        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-          <td style="padding: var(--spacing-2); font-weight: 500;">${h.time_of_day}</td>
-          <td style="padding: var(--spacing-2); text-align: right; color: var(--accent-cyan); font-weight: 600;">${h.session_count}</td>
-        </tr>
-      `).join('');
+    // Render Bar Chart
+    if (window.Chart && data.timeHabits.length > 0) {
+      const ctx = document.getElementById('habitsChart').getContext('2d');
+      new window.Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.timeHabits.map(h => h.time_of_day),
+          datasets: [{
+            label: 'Sessions Booked',
+            data: data.timeHabits.map(h => h.session_count),
+            backgroundColor: '#06b6d4',
+            borderRadius: 4
+          }]
+        },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', stepSize: 1 } },
+            x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+          }
+        }
+      });
+    } else if (data.timeHabits.length === 0) {
+      document.getElementById('habitsChart').parentElement.innerHTML = '<div class="text-muted" style="text-align: center; padding: 2rem;">No booking data available yet.</div>';
     }
   } catch (err) {
     window.showToast('Failed to load marketing analytics', 'error');

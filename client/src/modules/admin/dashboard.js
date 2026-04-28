@@ -7,8 +7,16 @@ export async function renderAdminDashboard(container) {
       <button class="btn btn-outline" onclick="location.reload()">Refresh Data</button>
     </div>
     
-    <div id="admin-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-4); margin-bottom: var(--spacing-8);">
-      <div class="spinner"></div>
+    <div style="display: grid; grid-template-columns: 3fr 1fr; gap: var(--spacing-6); margin-bottom: var(--spacing-8);">
+      <div id="admin-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-4);">
+        <div class="spinner"></div>
+      </div>
+      <div class="glass-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <h4 style="margin-bottom: var(--spacing-3); color: var(--text-muted); font-weight: 500;">Session Status</h4>
+        <div style="width: 100%; max-width: 180px; aspect-ratio: 1/1;">
+          <canvas id="sessionChart"></canvas>
+        </div>
+      </div>
     </div>
 
     <h3 style="margin-bottom: var(--spacing-4);">Station Utilization</h3>
@@ -76,6 +84,30 @@ async function loadDashboardData() {
         <td style="padding: var(--spacing-3); font-weight: 600; color: var(--accent-cyan);">₺${u.total_revenue.toFixed(2)}</td>
       </tr>
     `).join('');
+
+    // Render Chart
+    if (window.Chart) {
+      const ctx = document.getElementById('sessionChart').getContext('2d');
+      new window.Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Active', 'Completed'],
+          datasets: [{
+            data: [stats.activeSessions, stats.completedSessions],
+            backgroundColor: ['#F59E0B', '#10B981'],
+            borderWidth: 0
+          }]
+        },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: true, 
+          cutout: '70%',
+          plugins: { 
+            legend: { position: 'bottom', labels: { color: '#9ca3af', font: { family: 'Inter', size: 11 } } } 
+          } 
+        }
+      });
+    }
 
   } catch (err) {
     document.getElementById('admin-stats-grid').innerHTML = `<div class="text-red">Failed to load analytics: ${err.message}</div>`;

@@ -94,6 +94,17 @@ function initSchema() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (station_id) REFERENCES stations(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS issue_reports (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      station_id INTEGER NOT NULL,
+      charger_id INTEGER,
+      description TEXT NOT NULL,
+      status TEXT DEFAULT 'open',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (station_id) REFERENCES stations (id),
+      FOREIGN KEY (charger_id) REFERENCES chargers (id)
+    );
   `);
 }
 

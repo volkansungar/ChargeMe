@@ -71,8 +71,8 @@ export const api = {
   async updateStationHours(id, operating_hours) {
     return this.request(`/stations/${id}`, 'PUT', { operating_hours });
   },
-  async updateChargerPrice(stationId, chargerId, price_per_kwh) {
-    return this.request(`/stations/${stationId}/chargers/${chargerId}`, 'PUT', { price_per_kwh });
+  async updateChargerHardware(stationId, chargerId, data) {
+    return this.request(`/stations/${stationId}/chargers/${chargerId}`, 'PUT', data);
   },
   async updateChargerStatus(stationId, chargerId, status) {
     return this.request(`/stations/${stationId}/chargers/${chargerId}/status`, 'PUT', { status });

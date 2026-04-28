@@ -47,14 +47,14 @@ async function loadStations() {
                 return `
                   <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); opacity: ${isOutOfService ? '0.6' : '1'}">
                     <td style="padding: var(--spacing-2); font-weight: 600;">${c.charger_label}</td>
-                    <td style="padding: var(--spacing-2);">${c.type} ${c.power_kw}kW</td>
-                    <td style="padding: var(--spacing-2);">${c.connector_type}</td>
                     <td style="padding: var(--spacing-2);">
                       <div style="display:flex; align-items: center; gap: 0.5rem;">
-                        <span>₺${c.price_per_kwh.toFixed(2)}</span>
-                        <button class="btn btn-outline" style="padding: 2px 6px; font-size: 0.7rem;" onclick="editChargerPrice(${station.id}, ${c.id}, ${c.price_per_kwh})">✏️</button>
+                        <span>${c.type} ${c.power_kw}kW</span>
+                        <button class="btn btn-outline" style="padding: 2px 6px; font-size: 0.7rem;" onclick="editChargerHardware(${station.id}, ${c.id}, ${c.power_kw}, '${c.connector_type}', ${c.price_per_kwh})">✏️</button>
                       </div>
                     </td>
+                    <td style="padding: var(--spacing-2);">${c.connector_type}</td>
+                    <td style="padding: var(--spacing-2);">₺${c.price_per_kwh.toFixed(2)}</td>
                     <td style="padding: var(--spacing-2);">
                       <span class="badge badge-${c.status === 'available' ? 'available' : c.status === 'occupied' ? 'occupied' : 'offline'}">${c.status}</span>
                     </td>
@@ -91,18 +91,23 @@ window.editStationHours = async (id, current) => {
   }
 };
 
-window.editChargerPrice = async (stationId, chargerId, currentPrice) => {
-  const newPrice = prompt(`Enter new price per kWh (current: ₺${currentPrice}):`, currentPrice);
-  if (!newPrice) return;
+window.editChargerHardware = async (stationId, chargerId, currentPower, currentConnector, currentPrice) => {
+  const newPriceStr = prompt(`Enter new price per kWh (current: ₺${currentPrice}):`, currentPrice);
+  if (!newPriceStr) return;
   
-  const parsed = parseFloat(newPrice);
-  if (isNaN(parsed) || parsed <= 0) {
+  const newPrice = parseFloat(newPriceStr);
+  if (isNaN(newPrice) || newPrice <= 0) {
     return window.showToast('Invalid price', 'error');
   }
 
+  const newPowerStr = prompt(`Enter new power output in kW (current: ${currentPower}):`, currentPower);
+  const newPower = parseInt(newPowerStr) || currentPower;
+
+  const newConnector = prompt(`Enter connector type (current: ${currentConnector}):`, currentConnector) || currentConnector;
+
   try {
-    await api.updateChargerPrice(stationId, chargerId, parsed);
-    window.showToast('Charger price updated');
+    await api.updateChargerHardware(stationId, chargerId, { price_per_kwh: newPrice, power_kw: newPower, connector_type: newConnector });
+    window.showToast('Charger hardware updated');
     loadStations();
   } catch (err) {
     window.showToast(err.message, 'error');
