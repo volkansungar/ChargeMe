@@ -20,6 +20,7 @@ app.use('/api/stations', require('./routes/stations'));
 app.use('/api/reservations', require('./routes/reservations'));
 app.use('/api/sessions', require('./routes/sessions'));
 app.use('/api/wallet', require('./routes/wallet'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Serve Google Maps API key to frontend (without exposing in client code)
 app.get('/api/config', (req, res) => {

@@ -61,6 +61,23 @@ export const api = {
     return this.request('/wallet/topup', 'POST', { amount });
   },
 
+  // Admin
+  async getAdminStats() {
+    return this.request('/admin/stats');
+  },
+  async getAdminUtilization() {
+    return this.request('/admin/utilization');
+  },
+  async updateStationHours(id, operating_hours) {
+    return this.request(`/stations/${id}`, 'PUT', { operating_hours });
+  },
+  async updateChargerPrice(stationId, chargerId, price_per_kwh) {
+    return this.request(`/stations/${stationId}/chargers/${chargerId}`, 'PUT', { price_per_kwh });
+  },
+  async updateChargerStatus(stationId, chargerId, status) {
+    return this.request(`/stations/${stationId}/chargers/${chargerId}/status`, 'PUT', { status });
+  },
+
   // Helper
   async request(endpoint, method = 'GET', body = null) {
     const options = {

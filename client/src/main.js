@@ -5,6 +5,8 @@ import { renderReservations } from './modules/reservation.js';
 import { renderSessions } from './modules/charging-session.js';
 import { renderHistory } from './modules/history.js';
 import { renderWalletModal } from './modules/wallet.js';
+import { renderAdminDashboard } from './modules/admin/dashboard.js';
+import { renderManageStations } from './modules/admin/manage-stations.js';
 
 // Global state
 window.appState = {
@@ -25,6 +27,14 @@ async function handleRoute() {
   const content = document.getElementById('main-content');
   content.innerHTML = '<div style="display:flex;justify-content:center;padding:50px;"><div class="spinner"></div></div>';
 
+  // Auth / UI Mode Switch
+  const isRouteAdmin = route.startsWith('admin');
+  document.getElementById('driver-nav-links').classList.toggle('hidden', isRouteAdmin);
+  document.getElementById('admin-nav-links').classList.toggle('hidden', !isRouteAdmin);
+  document.getElementById('nav-wallet').classList.toggle('hidden', isRouteAdmin);
+
+  window.appState.isAdmin = isRouteAdmin;
+
   try {
     switch (route) {
       case 'map':
@@ -42,8 +52,14 @@ async function handleRoute() {
       case 'history':
         await renderHistory(content);
         break;
+      case 'admin/dashboard':
+        await renderAdminDashboard(content);
+        break;
+      case 'admin/stations':
+        await renderManageStations(content);
+        break;
       default:
-        window.location.hash = '#/map';
+        window.location.hash = window.appState.isAdmin ? '#/admin/dashboard' : '#/map';
     }
   } catch (err) {
     content.innerHTML = `<div class="glass-card"><h2 class="text-red">Error</h2><p>${err.message}</p></div>`;
@@ -102,6 +118,15 @@ export async function updateWalletDisplay() {
 async function init() {
   document.getElementById('nav-wallet').addEventListener('click', renderWalletModal);
   
+  // App Brand clicks toggle between Driver and Admin
+  document.getElementById('app-brand').addEventListener('click', () => {
+    if (window.appState.isAdmin) {
+      window.location.hash = '#/map';
+    } else {
+      window.location.hash = '#/admin/dashboard';
+    }
+  });
+
   // Initial fetch
   await updateWalletDisplay();
   try {

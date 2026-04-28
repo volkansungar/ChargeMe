@@ -75,4 +75,87 @@ router.get('/favorites/list', (req, res) => {
   res.json(favorites);
 });
 
+// Admin endpoints (Using the same auth stub logic for future integration)
+const { requireRole } = require('../middleware/auth');
+const adminAuth = requireRole('admin');
+
+// PUT /api/stations/:id - Update station operating hours
+router.put('/:id', adminAuth, (req, res) => {
+  const db = getDb();
+  const { operating_hours } = req.body;
+  
+  if (!operating_hours) return res.status(400).json({ error: 'Operating hours required' });
+
+  db.prepare('UPDATE stations SET operating_hours = ? WHERE id = ?').run(operating_hours, req.params.id);
+  const station = db.prepare('SELECT * FROM stations WHERE id = ?').get(req.params.id);
+  res.json(station);
+});
+
+// PUT /api/stations/:stationId/chargers/:chargerId - Update charger price
+router.put('/:stationId/chargers/:chargerId', adminAuth, (req, res) => {
+  const db = getDb();
+  const { price_per_kwh } = req.body;
+  
+  if (!price_per_kwh || price_per_kwh <= 0) {
+    return res.status(400).json({ error: 'Valid price per kWh is required' });
+  }
+
+  db.prepare('UPDATE chargers SET price_per_kwh = ? WHERE id = ? AND station_id = ?').run(
+    price_per_kwh, req.params.chargerId, req.params.stationId
+  );
+  
+  const charger = db.prepare('SELECT * FROM chargers WHERE id = ?').get(req.params.chargerId);
+  res.json(charger);
+});
+
+// PUT /api/stations/:stationId/chargers/:chargerId/status - Update charger status
+router.put('/:stationId/chargers/:chargerId/status', adminAuth, (req, res) => {
+  const db = getDb();
+  const { status } = req.body;
+  const validStatuses = ['available', 'occupied', 'out_of_service'];
+
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+  }
+
+  const transaction = db.transaction(() => {
+    // 1. Update charger status
+    db.prepare('UPDATE chargers SET status = ? WHERE id = ? AND station_id = ?').run(
+      status, req.params.chargerId, req.params.stationId
+    );
+
+    // 2. Auto-cancel reservations if out of service (Requirement R16)
+    let cancelledCount = 0;
+    if (status === 'out_of_service') {
+      const result = db.prepare(`
+        UPDATE reservations 
+        SET status = 'cancelled' 
+        WHERE charger_id = ? AND status IN ('confirmed', 'active')
+      `).run(req.params.chargerId);
+      cancelledCount = result.changes;
+      
+      // Note for R17: This is where we would trigger external SMS/Email notifications
+      // "Your reservation has been cancelled due to station maintenance."
+    }
+    
+    // Also update station status if all chargers are out of service
+    const allChargers = db.prepare('SELECT status FROM chargers WHERE station_id = ?').all(req.params.stationId);
+    if (allChargers.every(c => c.status === 'out_of_service')) {
+      db.prepare("UPDATE stations SET status = 'offline' WHERE id = ?").run(req.params.stationId);
+    } else {
+      db.prepare("UPDATE stations SET status = 'available' WHERE id = ?").run(req.params.stationId);
+    }
+
+    return cancelledCount;
+  });
+
+  try {
+    const cancelledCount = transaction();
+    const charger = db.prepare('SELECT * FROM chargers WHERE id = ?').get(req.params.chargerId);
+    res.json({ charger, cancelledCount, message: `Status updated. ${cancelledCount} active reservations cancelled.` });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to update charger status' });
+  }
+});
+
 module.exports = router;
