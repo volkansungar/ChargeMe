@@ -49,7 +49,7 @@ window.openReservationModal = async (stationId, chargerId) => {
       
       <div style="margin-top: var(--spacing-6);">
         <div class="text-amber" style="font-size: 0.85rem; margin-bottom: 0.5rem; text-align: center;">
-          ⚠️ A fully-refundable holding fee of ₺20.00 will be deducted from your wallet to secure this booking.
+          <i class="ph ph-info" style="margin-right: 4px;"></i> A fully-refundable holding fee of ₺20.00 will be deducted from your wallet to secure this booking.
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Reservation (Pay ₺20)</button>
       </div>
@@ -118,7 +118,7 @@ async function refreshReservationsList() {
       if (r.status === 'confirmed' && !isPast) {
         actions = `
           <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-            <button class="btn btn-success" style="flex: 1; padding: 0.5rem;" onclick="startSessionFromReservation(${r.id}, ${r.vehicle_id}, ${r.charger_id})">🔌 Start Charging</button>
+            <button class="btn btn-success" style="flex: 1; padding: 0.5rem;" onclick="startSessionFromReservation(${r.id}, ${r.vehicle_id}, ${r.charger_id})"><i class="ph ph-plug-charging"></i> Start Charging</button>
             <button class="btn btn-outline text-red" style="padding: 0.5rem;" onclick="cancelReservation(${r.id})">Cancel</button>
           </div>
         `;

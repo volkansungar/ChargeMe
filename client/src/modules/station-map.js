@@ -22,8 +22,8 @@ export async function renderMap(container) {
         <option value="50">50 kW+</option>
         <option value="150">150 kW+</option>
       </select>
-      <button class="btn btn-outline" id="btn-locate">📍 Find Me</button>
-      <button class="btn btn-outline" id="btn-clear-route" style="display: none;">❌ Clear Route</button>
+      <button class="btn btn-outline" id="btn-locate"><i class="ph ph-crosshair"></i> Find Me</button>
+      <button class="btn btn-outline" id="btn-clear-route" style="display: none;"><i class="ph ph-x"></i> Clear Route</button>
     </div>
     
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-6);">
@@ -201,8 +201,8 @@ async function loadStations() {
             <h4 style="margin:0; font-size: 1.1rem;">${station.name}</h4>
             <span class="badge badge-${station.status === 'available' ? 'available' : 'offline'}">${station.status}</span>
           </div>
-          <div class="text-secondary" style="font-size: 0.85rem; margin-bottom: 0.5rem;">
-            📍 ${station.distance.toFixed(1)} km away
+          <div class="text-secondary" style="font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 4px;">
+            <i class="ph ph-map-pin"></i> ${station.distance.toFixed(1)} km away
           </div>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
             ${Array.from(new Set(station.chargers.map(c => c.connector_type))).map(type => 
@@ -248,12 +248,12 @@ window.showStationDetail = async (id) => {
       <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
         <h2 class="text-gradient" style="margin: 0;">${station.name}</h2>
         <div>
-          <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem; margin-right: 4px;" onclick="getDirections(${station.lat}, ${station.lng})">🗺️ Directions</button>
-          <button class="btn btn-outline text-amber" style="padding: 4px 8px; font-size: 0.8rem;" onclick="reportIssue(${station.id})">🚩 Report Issue</button>
+          <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem; margin-right: 4px;" onclick="getDirections(${station.lat}, ${station.lng})"><i class="ph ph-navigation-arrow"></i> Directions</button>
+          <button class="btn btn-outline text-amber" style="padding: 4px 8px; font-size: 0.8rem;" onclick="reportIssue(${station.id})"><i class="ph ph-warning-circle"></i> Report Issue</button>
         </div>
       </div>
-      <p class="text-secondary" style="margin-bottom: var(--spacing-4);">📍 ${station.address}</p>
-      <p style="margin-bottom: var(--spacing-4);">🕒 Hours: ${station.operating_hours}</p>
+      <p class="text-secondary" style="margin-bottom: var(--spacing-4); display: flex; align-items: center; gap: 6px;"><i class="ph ph-map-pin"></i> ${station.address}</p>
+      <p style="margin-bottom: var(--spacing-4); display: flex; align-items: center; gap: 6px;"><i class="ph ph-clock"></i> Hours: ${station.operating_hours}</p>
       
       <h3 style="margin-bottom: var(--spacing-3);">Available Chargers</h3>
       ${chargersHtml}

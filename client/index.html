@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles/index.css" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -16,51 +17,51 @@
     <!-- Navigation -->
     <nav id="main-nav" class="glass-nav">
       <div class="nav-brand" style="cursor: pointer;" id="app-brand" title="Switch to Admin Portal">
-        <span class="nav-logo">⚡</span>
+        <span class="nav-logo" style="color: var(--accent-amber);"><i class="ph-fill ph-lightning"></i></span>
         <span class="nav-title">EV Charge</span>
       </div>
       <div class="nav-links" id="driver-nav-links">
         <a href="#/map" class="nav-link" data-route="map">
-          <span class="nav-icon">🗺️</span>
+          <span class="nav-icon"><i class="ph ph-map-trifold"></i></span>
           <span>Map</span>
         </a>
         <a href="#/vehicles" class="nav-link" data-route="vehicles">
-          <span class="nav-icon">🚗</span>
+          <span class="nav-icon"><i class="ph ph-car-profile"></i></span>
           <span>Vehicles</span>
         </a>
         <a href="#/reservations" class="nav-link" data-route="reservations">
-          <span class="nav-icon">📅</span>
+          <span class="nav-icon"><i class="ph ph-calendar-blank"></i></span>
           <span>Reservations</span>
         </a>
         <a href="#/session" class="nav-link" data-route="session">
-          <span class="nav-icon">🔋</span>
+          <span class="nav-icon"><i class="ph ph-battery-charging"></i></span>
           <span>Charging</span>
         </a>
         <a href="#/history" class="nav-link" data-route="history">
-          <span class="nav-icon">📜</span>
+          <span class="nav-icon"><i class="ph ph-clock-counter-clockwise"></i></span>
           <span>History</span>
         </a>
       </div>
       <div class="nav-links hidden" id="admin-nav-links">
         <a href="#/admin/dashboard" class="nav-link admin-nav" data-route="admin/dashboard">
-          <span class="nav-icon">📊</span>
+          <span class="nav-icon"><i class="ph ph-chart-pie-slice"></i></span>
           <span>Analytics</span>
         </a>
         <a href="#/admin/marketing" class="nav-link admin-nav" data-route="admin/marketing">
-          <span class="nav-icon">📈</span>
+          <span class="nav-icon"><i class="ph ph-trend-up"></i></span>
           <span>Marketing</span>
         </a>
         <a href="#/admin/issues" class="nav-link admin-nav" data-route="admin/issues">
-          <span class="nav-icon">🛠️</span>
+          <span class="nav-icon"><i class="ph ph-wrench"></i></span>
           <span>Issues</span>
         </a>
         <a href="#/admin/stations" class="nav-link admin-nav" data-route="admin/stations">
-          <span class="nav-icon">⚙️</span>
+          <span class="nav-icon"><i class="ph ph-ev-station"></i></span>
           <span>Fleet</span>
         </a>
       </div>
       <div class="nav-wallet" id="nav-wallet">
-        <span class="wallet-icon">💰</span>
+        <span class="wallet-icon"><i class="ph ph-wallet"></i></span>
         <span class="wallet-balance" id="wallet-balance">₺0.00</span>
       </div>
     </nav>

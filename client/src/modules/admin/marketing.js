@@ -48,7 +48,7 @@ async function loadMarketingData() {
       favTbody.innerHTML = data.topFavorites.map(f => `
         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
           <td style="padding: var(--spacing-2); font-weight: 500;">${f.name}</td>
-          <td style="padding: var(--spacing-2); text-align: right; color: var(--accent-amber); font-weight: 600;">❤️ ${f.fav_count}</td>
+          <td style="padding: var(--spacing-2); text-align: right; color: var(--accent-amber); font-weight: 600;"><i class="ph-fill ph-heart"></i> ${f.fav_count}</td>
         </tr>
       `).join('');
     }

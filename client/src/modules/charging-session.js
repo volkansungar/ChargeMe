@@ -23,7 +23,7 @@ async function refreshSessions() {
     if (activeSessions.length === 0) {
       container.innerHTML = `
         <div class="glass-card" style="text-align: center; padding: var(--spacing-8);">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">🔋</div>
+          <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="ph ph-battery-empty"></i></div>
           <h3 class="text-secondary">No active charging sessions</h3>
           <p class="text-muted" style="margin-bottom: 1.5rem;">Start a session from your confirmed reservations or directly at a station.</p>
           <a href="#/reservations" class="btn btn-primary">View Reservations</a>
@@ -56,7 +56,7 @@ async function refreshSessions() {
         <div class="glass-card" id="session-card-${s.id}">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
             <div>
-              <div class="badge badge-available" style="margin-bottom: 0.5rem; animation: pulse 2s infinite;">⚡ CHARGING</div>
+              <div class="badge badge-available" style="margin-bottom: 0.5rem; animation: pulse 2s infinite;"><i class="ph ph-lightning"></i> CHARGING</div>
               <h3 style="margin:0;">${s.station_name}</h3>
               <p class="text-secondary">${s.charger_label} (${s.power_kw}kW)</p>
             </div>
@@ -75,15 +75,15 @@ async function refreshSessions() {
               <div class="progress-fill" id="session-bar-${s.id}" style="width: ${pct}%"></div>
             </div>
             <div style="text-align: center; margin-top: 0.5rem; font-size: 0.85rem; color: var(--accent-amber);" id="session-time-${s.id}">
-              ⏳ ${timeText}
+              <i class="ph ph-timer"></i> ${timeText}
             </div>
           </div>
 
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div class="text-muted" style="font-size: 0.9rem;">
-              🚗 ${s.vehicle_brand} ${s.vehicle_model}
+              <i class="ph ph-car-profile"></i> ${s.vehicle_brand} ${s.vehicle_model}
             </div>
-            <button class="btn btn-danger" onclick="stopSession(${s.id})">🛑 Stop Charging</button>
+            <button class="btn btn-danger" onclick="stopSession(${s.id})"><i class="ph ph-stop-circle"></i> Stop Charging</button>
           </div>
         </div>
       `;
@@ -139,7 +139,7 @@ function simulateCharging(session) {
       if(elPct) elPct.textContent = `${pct}%`;
       if(elKwh) elKwh.textContent = `${currentKwh.toFixed(1)} kWh`;
       if(elCost) elCost.textContent = `₺${updated.cost.toFixed(2)}`;
-      if(elTime) elTime.textContent = `⏳ ~${minsRemaining}s remaining (demo time)`;
+      if(elTime) elTime.innerHTML = `<i class="ph ph-timer"></i> ~${minsRemaining}s remaining (demo time)`;
 
     } catch (e) {
       console.error('Simulation update failed', e);
@@ -173,7 +173,7 @@ window.stopSession = async (id, finalKwh = null) => {
     window.showToast(err.message, 'error');
     if(btn) {
       btn.disabled = false;
-      btn.textContent = '🛑 Stop Charging';
+      btn.innerHTML = '<i class="ph ph-stop-circle"></i> Stop Charging';
     }
   }
 };
@@ -181,7 +181,7 @@ window.stopSession = async (id, finalKwh = null) => {
 function showReceipt(session) {
   const html = `
     <div style="text-align: center; margin-bottom: var(--spacing-6);">
-      <div style="font-size: 3rem; margin-bottom: 1rem;">🧾</div>
+      <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="ph ph-receipt"></i></div>
       <h2 class="text-gradient">Digital Receipt</h2>
       <p class="text-secondary">${new Date().toLocaleString()}</p>
     </div>

@@ -84,7 +84,7 @@ async function refreshVehiclesList() {
 
     container.innerHTML = vehicles.map(v => `
       <div class="glass-card" style="position: relative;">
-        <button class="btn btn-danger" style="position: absolute; top: 1rem; right: 1rem; padding: 0.25rem 0.5rem;" onclick="deleteVehicle(${v.id})">🗑️</button>
+        <button class="btn btn-danger" style="position: absolute; top: 1rem; right: 1rem; padding: 0.25rem 0.5rem;" onclick="deleteVehicle(${v.id})"><i class="ph ph-trash"></i></button>
         <h3 style="margin-bottom: 0.5rem;">${v.brand} ${v.model}</h3>
         <p class="text-secondary" style="font-family: monospace; font-size: 1.1em; margin-bottom: 1rem;">[${v.plate_number}]</p>
         

@@ -1,12 +1,12 @@
 :root {
   /* Color Palette - Premium Dark Theme */
-  --bg-primary: #0A0E17;
-  --bg-secondary: #131A2A;
-  --bg-tertiary: #1E293B;
+  --bg-primary: #050505;
+  --bg-secondary: #0A0A0A;
+  --bg-tertiary: #121212;
   
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
   
   --accent-blue: #3B82F6;
   --accent-cyan: #06B6D4;
@@ -20,9 +20,9 @@
   --gradient-danger: linear-gradient(135deg, var(--accent-red) 0%, #DC2626 100%);
 
   /* Glassmorphism */
-  --glass-bg: rgba(19, 26, 42, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-blur: blur(12px);
+  --glass-bg: rgba(18, 18, 18, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-blur: blur(16px);
 
   /* Spacing */
   --spacing-1: 0.25rem;
@@ -54,11 +54,18 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
-  line-height: 1.5;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.08), transparent 25%);
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.05), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.05), transparent 25%);
   background-attachment: fixed;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 /* Utilities */
@@ -80,14 +87,14 @@ body {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   padding: var(--spacing-6);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Navigation */
@@ -127,7 +134,8 @@ body {
   font-weight: 500;
   padding: var(--spacing-2) var(--spacing-4);
   border-radius: var(--radius-md);
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.95rem;
 }
 
 .nav-link:hover {
@@ -136,9 +144,14 @@ body {
 }
 
 .nav-link.active {
-  color: var(--text-primary);
-  background: rgba(59, 130, 246, 0.1);
   color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.nav-icon {
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
 }
 
 .nav-wallet {
@@ -194,7 +207,7 @@ body {
 .form-input:focus, .form-select:focus {
   outline: none;
   border-color: var(--accent-cyan);
-  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-cyan);
 }
 
 .form-select option {
@@ -208,29 +221,35 @@ body {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-2);
-  padding: var(--spacing-3) var(--spacing-6);
+  padding: var(--spacing-2) var(--spacing-4);
   border-radius: var(--radius-md);
   font-family: inherit;
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 500;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
   color: white;
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--text-primary);
 }
 
 .btn-primary {
   background: var(--gradient-primary);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  border: none;
+  box-shadow: 0 2px 4px -1px rgba(59, 130, 246, 0.4);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+  box-shadow: 0 4px 6px -1px rgba(6, 182, 212, 0.4);
   transform: translateY(-1px);
 }
 
-.btn-success { background: var(--gradient-success); }
-.btn-danger { background: var(--gradient-danger); }
+.btn-success { background: var(--gradient-success); border: none; }
+.btn-danger { background: var(--gradient-danger); border: none; }
 
 .btn-outline {
   background: transparent;

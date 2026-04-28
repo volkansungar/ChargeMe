@@ -80,7 +80,7 @@ window.showToast = (message, type = 'success') => {
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   toast.innerHTML = `
-    <span>${type === 'success' ? '✅' : '❌'}</span>
+    <span>${type === 'success' ? '<i class="ph ph-check-circle"></i>' : '<i class="ph ph-x-circle"></i>'}</span>
     <span>${message}</span>
   `;
   container.appendChild(toast);

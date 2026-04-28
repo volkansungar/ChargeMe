@@ -21,7 +21,7 @@ async function loadStations() {
         <div style="padding: var(--spacing-4); border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-xl) var(--radius-xl) 0 0;">
           <div>
             <h3 style="margin: 0;">${station.name}</h3>
-            <div class="text-muted" style="font-size: 0.85rem;">📍 ${station.address}</div>
+            <div class="text-muted" style="font-size: 0.85rem; display: flex; align-items: center; gap: 4px;"><i class="ph ph-map-pin"></i> ${station.address}</div>
           </div>
           <div style="text-align: right;">
             <div style="font-size: 0.85rem; margin-bottom: 4px;">Operating Hours: <span style="font-weight:bold;">${station.operating_hours}</span></div>
@@ -50,7 +50,7 @@ async function loadStations() {
                     <td style="padding: var(--spacing-2);">
                       <div style="display:flex; align-items: center; gap: 0.5rem;">
                         <span>${c.type} ${c.power_kw}kW</span>
-                        <button class="btn btn-outline" style="padding: 2px 6px; font-size: 0.7rem;" onclick="editChargerHardware(${station.id}, ${c.id}, ${c.power_kw}, '${c.connector_type}', ${c.price_per_kwh})">✏️</button>
+                        <button class="btn btn-outline" style="padding: 2px 6px; font-size: 0.7rem;" onclick="editChargerHardware(${station.id}, ${c.id}, ${c.power_kw}, '${c.connector_type}', ${c.price_per_kwh})"><i class="ph ph-pencil-simple"></i></button>
                       </div>
                     </td>
                     <td style="padding: var(--spacing-2);">${c.connector_type}</td>
