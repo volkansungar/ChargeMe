@@ -11,13 +11,11 @@ export async function renderWalletModal() {
   }
 
   const html = `
-    <div class="modal-header">
-      <h2 class="text-gradient">My Wallet</h2>
-    </div>
+    <h2 style="font-size: 18px; margin-bottom: 20px;">Wallet</h2>
     
-    <div style="text-align: center; margin: var(--spacing-6) 0;">
-      <div class="text-muted" style="margin-bottom: var(--spacing-2);">Current Balance</div>
-      <div style="font-size: 3rem; font-weight: 700; color: var(--accent-emerald);" id="modal-wallet-balance">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div class="text-muted" style="font-size: 12px; margin-bottom: 4px;">Current Balance</div>
+      <div style="font-size: 32px; font-weight: 700; color: var(--green);" id="modal-wallet-balance">
         ₺${currentBalance.toFixed(2)}
       </div>
     </div>
@@ -25,18 +23,16 @@ export async function renderWalletModal() {
     <form id="topup-form">
       <div class="form-group">
         <label class="form-label">Top Up Amount (₺)</label>
-        <div style="display: flex; gap: var(--spacing-3); margin-bottom: var(--spacing-4);">
-          <button type="button" class="btn btn-outline" style="flex:1" onclick="document.getElementById('t-amount').value = 100">100</button>
-          <button type="button" class="btn btn-outline" style="flex:1" onclick="document.getElementById('t-amount').value = 250">250</button>
-          <button type="button" class="btn btn-outline" style="flex:1" onclick="document.getElementById('t-amount').value = 500">500</button>
-          <button type="button" class="btn btn-outline" style="flex:1" onclick="document.getElementById('t-amount').value = 1000">1000</button>
+        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+          <button type="button" class="btn btn-ghost" style="flex:1; padding: 6px;" onclick="document.getElementById('t-amount').value = 100">100</button>
+          <button type="button" class="btn btn-ghost" style="flex:1; padding: 6px;" onclick="document.getElementById('t-amount').value = 250">250</button>
+          <button type="button" class="btn btn-ghost" style="flex:1; padding: 6px;" onclick="document.getElementById('t-amount').value = 500">500</button>
+          <button type="button" class="btn btn-ghost" style="flex:1; padding: 6px;" onclick="document.getElementById('t-amount').value = 1000">1000</button>
         </div>
-        <input type="number" id="t-amount" class="form-input" min="1" max="10000" required placeholder="Enter custom amount">
+        <input type="number" id="t-amount" class="form-input" min="1" max="10000" required placeholder="Custom amount">
       </div>
       
-      <div class="form-group" style="margin-top: var(--spacing-6);">
-        <button type="submit" class="btn btn-success" style="width: 100%;">Top Up via Secure Gateway</button>
-      </div>
+      <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 8px;">Top Up</button>
     </form>
   `;
 
@@ -44,7 +40,7 @@ export async function renderWalletModal() {
 
   document.getElementById('topup-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const btn = e.target.querySelector('button');
+    const btn = e.target.querySelector('button[type=submit]');
     btn.disabled = true;
     btn.textContent = 'Processing...';
 
@@ -55,12 +51,12 @@ export async function renderWalletModal() {
       document.getElementById('modal-wallet-balance').textContent = `₺${res.balance.toFixed(2)}`;
       await updateWalletDisplay();
       
-      window.showToast(`Successfully added ₺${amount.toFixed(2)} to wallet`);
+      window.showToast(`Added ₺${amount.toFixed(2)} to wallet`);
       setTimeout(() => window.closeModal(), 1500);
     } catch (err) {
       window.showToast(err.message, 'error');
       btn.disabled = false;
-      btn.textContent = 'Top Up via Secure Gateway';
+      btn.textContent = 'Top Up';
     }
   });
 }

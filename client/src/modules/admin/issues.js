@@ -2,26 +2,28 @@ import { api } from '../../services/api.js';
 
 export async function renderAdminIssues(container) {
   container.innerHTML = `
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-6);">
-      <h2 class="text-gradient">Issue Reports</h2>
-      <button class="btn btn-outline" onclick="location.reload()">Refresh Data</button>
+    <div class="page-header">
+      <h2>Issue Reports</h2>
+      <button class="btn btn-ghost" onclick="location.reload()"><i class="ph ph-arrow-clockwise"></i> Refresh</button>
     </div>
     
-    <div class="glass-card">
-      <table style="width: 100%; border-collapse: collapse; text-align: left;">
-        <thead>
-          <tr style="border-bottom: 1px solid var(--glass-border);">
-            <th style="padding: var(--spacing-3); color: var(--text-muted); font-weight: 500;">Date</th>
-            <th style="padding: var(--spacing-3); color: var(--text-muted); font-weight: 500;">Station & Charger</th>
-            <th style="padding: var(--spacing-3); color: var(--text-muted); font-weight: 500;">Issue Description</th>
-            <th style="padding: var(--spacing-3); color: var(--text-muted); font-weight: 500;">Status</th>
-            <th style="padding: var(--spacing-3); color: var(--text-muted); font-weight: 500; text-align: right;">Action</th>
-          </tr>
-        </thead>
-        <tbody id="issues-list">
-          <tr><td colspan="5" style="text-align: center; padding: 2rem;"><div class="spinner" style="margin: 0 auto;"></div></td></tr>
-        </tbody>
-      </table>
+    <div class="card-flush">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Station</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="issues-list">
+            <tr><td colspan="5" style="text-align:center;padding:32px;"><div class="spinner" style="margin:0 auto;"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   `;
 
@@ -34,7 +36,7 @@ async function loadIssues() {
     const issues = await api.getAdminIssues();
 
     if (issues.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-muted" style="text-align: center; padding: 2rem;">No issues reported.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="text-muted" style="text-align:center;padding:32px;">No issues reported.</td></tr>';
       return;
     }
 
@@ -43,26 +45,26 @@ async function loadIssues() {
       const isResolved = i.status === 'resolved';
       
       return `
-        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); opacity: ${isResolved ? '0.6' : '1'}">
-          <td style="padding: var(--spacing-3); white-space: nowrap;">${date}</td>
-          <td style="padding: var(--spacing-3);">
+        <tr style="opacity: ${isResolved ? '0.5' : '1'}">
+          <td style="white-space: nowrap;">${date}</td>
+          <td>
             <div style="font-weight: 500;">${i.station_name}</div>
-            <div class="text-secondary" style="font-size: 0.85rem;">${i.charger_label || 'Station wide'}</div>
+            <div class="text-muted" style="font-size: 12px;">${i.charger_label || 'General'}</div>
           </td>
-          <td style="padding: var(--spacing-3);">${i.description}</td>
-          <td style="padding: var(--spacing-3);">
+          <td>${i.description}</td>
+          <td>
             <span class="badge badge-${isResolved ? 'available' : 'offline'}">${i.status}</span>
           </td>
-          <td style="padding: var(--spacing-3); text-align: right;">
+          <td style="text-align: right;">
             ${!isResolved 
-              ? `<button class="btn btn-success" style="padding: 4px 8px; font-size: 0.8rem;" onclick="resolveIssue(${i.id})">Mark Resolved</button>` 
-              : `<span class="text-muted">Done</span>`}
+              ? `<button class="btn btn-success" style="padding: 4px 8px; font-size: 12px;" onclick="resolveIssue(${i.id})">Resolve</button>` 
+              : `<span class="text-muted" style="font-size: 12px;">Done</span>`}
           </td>
         </tr>
       `;
     }).join('');
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-red" style="text-align: center; padding: 2rem;">Failed to load issues</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="text-red" style="text-align:center;padding:32px;">Failed to load issues</td></tr>`;
   }
 }
 

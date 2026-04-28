@@ -3,36 +3,36 @@ import { loadGoogleMaps, calculateDistance } from '../utils/maps.js';
 
 let mapInstance = null;
 let markers = [];
-let userLocation = { lat: 38.4237, lng: 27.1428 }; // Default: İzmir Center
+let userLocation = { lat: 38.4237, lng: 27.1428 };
 let directionsService = null;
 let directionsRenderer = null;
 
 export async function renderMap(container) {
   container.innerHTML = `
-    <div style="display: flex; gap: var(--spacing-4); margin-bottom: var(--spacing-4);">
-      <select id="filter-connector" class="form-select" style="max-width: 200px;">
+    <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;">
+      <select id="filter-connector" class="form-select" style="max-width: 160px;">
         <option value="">All Connectors</option>
         <option value="Type 2">Type 2</option>
         <option value="CCS">CCS</option>
         <option value="CHAdeMO">CHAdeMO</option>
       </select>
-      <select id="filter-power" class="form-select" style="max-width: 200px;">
+      <select id="filter-power" class="form-select" style="max-width: 160px;">
         <option value="">All Speeds</option>
         <option value="22">Up to 22 kW</option>
         <option value="50">50 kW+</option>
         <option value="150">150 kW+</option>
       </select>
-      <button class="btn btn-outline" id="btn-locate"><i class="ph ph-crosshair"></i> Find Me</button>
-      <button class="btn btn-outline" id="btn-clear-route" style="display: none;"><i class="ph ph-x"></i> Clear Route</button>
+      <button class="btn btn-ghost" id="btn-locate"><i class="ph ph-crosshair"></i> Locate</button>
+      <button class="btn btn-ghost" id="btn-clear-route" style="display: none;"><i class="ph ph-x"></i> Clear Route</button>
     </div>
     
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-6);">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
       <div id="map-canvas" class="map-container"></div>
       
-      <div id="station-sidebar" class="glass-card" style="height: 600px; overflow-y: auto;">
-        <h3 style="margin-bottom: var(--spacing-4);">Nearby Stations</h3>
-        <div id="station-list" style="display: flex; flex-direction: column; gap: var(--spacing-4);">
-          <div class="text-muted">Loading stations...</div>
+      <div class="card" style="height: 560px; overflow-y: auto; padding: 16px;">
+        <h3 style="font-size: 14px; margin-bottom: 12px;">Nearby Stations</h3>
+        <div id="station-list" style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="text-muted" style="font-size: 13px;">Loading...</div>
         </div>
       </div>
     </div>
@@ -55,7 +55,7 @@ export async function renderMap(container) {
             new googleMaps.Marker({
               position: userLocation,
               map: mapInstance,
-              icon: { path: googleMaps.SymbolPath.CIRCLE, scale: 8, fillColor: '#3B82F6', fillOpacity: 1, strokeWeight: 2, strokeColor: 'white' },
+              icon: { path: googleMaps.SymbolPath.CIRCLE, scale: 8, fillColor: '#60A5FA', fillOpacity: 1, strokeWeight: 2, strokeColor: '#0B1121' },
               title: 'Your Location'
             });
             loadStations();
@@ -74,8 +74,8 @@ export async function renderMap(container) {
 
   } catch (err) {
     document.getElementById('map-canvas').innerHTML = `
-      <div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--accent-red); padding: 2rem; text-align: center;">
-        ${err.message}<br/>Make sure you added the API key to the .env file and restarted the server.
+      <div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--red); padding: 2rem; text-align: center; font-size: 13px;">
+        ${err.message}<br/>Check that the API key is set in .env and the server is running.
       </div>
     `;
   }
@@ -86,44 +86,16 @@ function initMap(googleMaps) {
     center: userLocation,
     zoom: 12,
     styles: [
-      { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-      { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-      { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-      {
-        featureType: "administrative.locality",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#d59563" }],
-      },
-      {
-        featureType: "road",
-        elementType: "geometry",
-        stylers: [{ color: "#38414e" }],
-      },
-      {
-        featureType: "road",
-        elementType: "geometry.stroke",
-        stylers: [{ color: "#212a37" }],
-      },
-      {
-        featureType: "road",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#9ca5b3" }],
-      },
-      {
-        featureType: "water",
-        elementType: "geometry",
-        stylers: [{ color: "#17263c" }],
-      },
-      {
-        featureType: "water",
-        elementType: "labels.text.fill",
-        stylers: [{ color: "#515c6d" }],
-      },
-      {
-        featureType: "water",
-        elementType: "labels.text.stroke",
-        stylers: [{ color: "#17263c" }],
-      },
+      { elementType: "geometry", stylers: [{ color: "#111A2E" }] },
+      { elementType: "labels.text.stroke", stylers: [{ color: "#0B1121" }] },
+      { elementType: "labels.text.fill", stylers: [{ color: "#64748B" }] },
+      { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#94A3B8" }] },
+      { featureType: "road", elementType: "geometry", stylers: [{ color: "#1E2D52" }] },
+      { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#111A2E" }] },
+      { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#64748B" }] },
+      { featureType: "water", elementType: "geometry", stylers: [{ color: "#0B1121" }] },
+      { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#1E2D52" }] },
+      { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#0B1121" }] },
     ]
   });
 
@@ -131,7 +103,7 @@ function initMap(googleMaps) {
   directionsRenderer = new googleMaps.DirectionsRenderer({
     map: mapInstance,
     suppressMarkers: true,
-    polylineOptions: { strokeColor: '#3B82F6', strokeWeight: 5 }
+    polylineOptions: { strokeColor: '#3B82F6', strokeWeight: 4 }
   });
 }
 
@@ -144,25 +116,21 @@ async function loadStations() {
   try {
     const stations = await api.getStations();
     
-    // Clear old markers
     markers.forEach(m => m.setMap(null));
     markers = [];
     
     const sidebar = document.getElementById('station-list');
     sidebar.innerHTML = '';
 
-    // Calculate distances
     stations.forEach(s => {
       s.distance = calculateDistance(userLocation.lat, userLocation.lng, s.lat, s.lng);
     });
 
-    // Sort by distance
     stations.sort((a, b) => a.distance - b.distance);
 
     let visibleCount = 0;
 
     stations.forEach(station => {
-      // Apply filters
       const hasCompatibleCharger = station.chargers.some(c => 
         (filterConn === '' || c.connector_type === filterConn) &&
         (c.power_kw >= filterPower)
@@ -171,42 +139,39 @@ async function loadStations() {
       if (!hasCompatibleCharger && (filterConn || filterPower > 0)) return;
       visibleCount++;
 
-      // Determine station status color
-      let statusColor = '#10B981'; // Green
-      if (station.status === 'offline') statusColor = '#EF4444'; // Red
-      else if (station.chargers.every(c => c.status === 'occupied' || c.status === 'out_of_service')) statusColor = '#F59E0B'; // Yellow
+      let statusColor = '#34D399';
+      if (station.status === 'offline') statusColor = '#F87171';
+      else if (station.chargers.every(c => c.status === 'occupied' || c.status === 'out_of_service')) statusColor = '#FBBF24';
 
-      // Add map marker
       const marker = new window.google.maps.Marker({
         position: { lat: station.lat, lng: station.lng },
         map: mapInstance,
         title: station.name,
         icon: {
           path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 10,
+          scale: 9,
           fillColor: statusColor,
           fillOpacity: 1,
           strokeWeight: 2,
-          strokeColor: 'white'
+          strokeColor: '#0B1121'
         }
       });
 
       marker.addListener('click', () => showStationDetail(station.id));
       markers.push(marker);
 
-      // Add to sidebar
       sidebar.innerHTML += `
-        <div class="glass-card" style="padding: var(--spacing-4); cursor: pointer;" onclick="showStationDetail(${station.id})">
-          <div style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-            <h4 style="margin:0; font-size: 1.1rem;">${station.name}</h4>
+        <div style="padding: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; font-size: 13px;" onclick="showStationDetail(${station.id})">
+          <div style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+            <div style="font-weight: 600; font-size: 13px;">${station.name}</div>
             <span class="badge badge-${station.status === 'available' ? 'available' : 'offline'}">${station.status}</span>
           </div>
-          <div class="text-secondary" style="font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 4px;">
-            <i class="ph ph-map-pin"></i> ${station.distance.toFixed(1)} km away
+          <div class="text-muted" style="font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; gap: 3px;">
+            <i class="ph ph-map-pin"></i> ${station.distance.toFixed(1)} km
           </div>
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <div style="display: flex; gap: 4px; flex-wrap: wrap;">
             ${Array.from(new Set(station.chargers.map(c => c.connector_type))).map(type => 
-              `<span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">${type}</span>`
+              `<span style="background: var(--bg-3); padding: 1px 6px; border-radius: 4px; font-size: 11px; color: var(--text-1);">${type}</span>`
             ).join('')}
           </div>
         </div>
@@ -214,7 +179,7 @@ async function loadStations() {
     });
 
     if (visibleCount === 0) {
-      sidebar.innerHTML = '<div class="text-muted">No stations match your filters.</div>';
+      sidebar.innerHTML = '<div class="text-muted" style="font-size: 13px;">No stations match your filters.</div>';
     }
 
   } catch (err) {
@@ -229,33 +194,33 @@ window.showStationDetail = async (id) => {
     let chargersHtml = station.chargers.map(c => {
       const isAvailable = c.status === 'available';
       return `
-        <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: var(--spacing-3); margin-bottom: var(--spacing-2); display: flex; justify-content: space-between; align-items: center;">
+        <div style="background: var(--bg-0); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
           <div>
             <div style="font-weight: 600;">${c.charger_label}</div>
-            <div style="font-size: 0.8rem; color: var(--text-secondary);">
-              ${c.power_kw}kW • ${c.connector_type} • ₺${c.price_per_kwh}/kWh
+            <div class="text-muted" style="font-size: 12px;">
+              ${c.power_kw}kW · ${c.connector_type} · ₺${c.price_per_kwh}/kWh
             </div>
           </div>
           <div style="text-align: right;">
              <span class="badge badge-${isAvailable ? 'available' : 'occupied'}">${c.status}</span>
-             ${isAvailable ? `<button class="btn btn-primary" style="padding: 4px 12px; font-size: 0.8rem; margin-top: 4px; display: block;" onclick="openReservationModal(${station.id}, ${c.id})">Reserve</button>` : ''}
+             ${isAvailable ? `<button class="btn btn-primary" style="padding: 3px 10px; font-size: 12px; margin-top: 4px; display: block;" onclick="openReservationModal(${station.id}, ${c.id})">Reserve</button>` : ''}
           </div>
         </div>
       `;
     }).join('');
 
     const html = `
-      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <h2 class="text-gradient" style="margin: 0;">${station.name}</h2>
-        <div>
-          <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem; margin-right: 4px;" onclick="getDirections(${station.lat}, ${station.lng})"><i class="ph ph-navigation-arrow"></i> Directions</button>
-          <button class="btn btn-outline text-amber" style="padding: 4px 8px; font-size: 0.8rem;" onclick="reportIssue(${station.id})"><i class="ph ph-warning-circle"></i> Report Issue</button>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <h2 style="font-size: 18px;">${station.name}</h2>
+        <div style="display: flex; gap: 4px;">
+          <button class="btn btn-ghost" style="padding: 4px 8px; font-size: 12px;" onclick="getDirections(${station.lat}, ${station.lng})"><i class="ph ph-navigation-arrow"></i> Directions</button>
+          <button class="btn btn-ghost text-amber" style="padding: 4px 8px; font-size: 12px;" onclick="reportIssue(${station.id})"><i class="ph ph-warning-circle"></i> Report</button>
         </div>
       </div>
-      <p class="text-secondary" style="margin-bottom: var(--spacing-4); display: flex; align-items: center; gap: 6px;"><i class="ph ph-map-pin"></i> ${station.address}</p>
-      <p style="margin-bottom: var(--spacing-4); display: flex; align-items: center; gap: 6px;"><i class="ph ph-clock"></i> Hours: ${station.operating_hours}</p>
+      <p class="text-muted" style="font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;"><i class="ph ph-map-pin"></i> ${station.address}</p>
+      <p class="text-muted" style="font-size: 13px; margin-bottom: 16px; display: flex; align-items: center; gap: 4px;"><i class="ph ph-clock"></i> ${station.operating_hours}</p>
       
-      <h3 style="margin-bottom: var(--spacing-3);">Available Chargers</h3>
+      <h3 style="font-size: 14px; margin-bottom: 8px;">Chargers</h3>
       ${chargersHtml}
     `;
     
@@ -266,7 +231,7 @@ window.showStationDetail = async (id) => {
 };
 
 window.reportIssue = async (stationId) => {
-  const desc = prompt('Please describe the issue (e.g., "Charger A screen is broken", "Cable is damaged"):');
+  const desc = prompt('Describe the issue:');
   if (!desc || desc.trim() === '') return;
 
   try {
@@ -286,7 +251,7 @@ window.getDirections = (lat, lng) => {
   }, (response, status) => {
     if (status === 'OK') {
       directionsRenderer.setDirections(response);
-      document.getElementById('btn-clear-route').style.display = 'inline-block';
+      document.getElementById('btn-clear-route').style.display = 'inline-flex';
     } else {
       window.showToast('Could not find route: ' + status, 'error');
     }

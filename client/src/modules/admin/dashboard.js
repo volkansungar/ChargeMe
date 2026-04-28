@@ -2,37 +2,39 @@ import { api } from '../../services/api.js';
 
 export async function renderAdminDashboard(container) {
   container.innerHTML = `
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-6);">
-      <h2 class="text-gradient">System Analytics</h2>
-      <button class="btn btn-outline" onclick="location.reload()">Refresh Data</button>
+    <div class="page-header">
+      <h2>System Analytics</h2>
+      <button class="btn btn-ghost" onclick="location.reload()"><i class="ph ph-arrow-clockwise"></i> Refresh</button>
     </div>
     
-    <div style="display: grid; grid-template-columns: 3fr 1fr; gap: var(--spacing-6); margin-bottom: var(--spacing-8);">
-      <div id="admin-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-4);">
-        <div class="spinner"></div>
+    <div style="display: grid; grid-template-columns: 1fr 260px; gap: 16px; margin-bottom: 24px;">
+      <div class="grid-stats" id="admin-stats-grid">
+        <div class="stat-card"><div class="spinner"></div></div>
       </div>
-      <div class="glass-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <h4 style="margin-bottom: var(--spacing-3); color: var(--text-muted); font-weight: 500;">Session Status</h4>
-        <div style="width: 100%; max-width: 180px; aspect-ratio: 1/1;">
+      <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div class="stat-label" style="margin-bottom: 8px;">Session Breakdown</div>
+        <div style="width: 100%; max-width: 160px;">
           <canvas id="sessionChart"></canvas>
         </div>
       </div>
     </div>
 
-    <h3 style="margin-bottom: var(--spacing-4);">Station Utilization</h3>
-    <div class="glass-card">
-      <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+    <div class="card-flush">
+      <div class="card-header">
+        <h3 style="font-size: 14px; font-weight: 600;">Station Utilization</h3>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
           <thead>
-            <tr style="border-bottom: 1px solid var(--glass-border);">
-              <th style="padding: var(--spacing-3); color: var(--text-muted); font-weight: 500;">Station Name</th>
-              <th style="padding: var(--spacing-3); color: var(--text-muted); font-weight: 500;">Sessions</th>
-              <th style="padding: var(--spacing-3); color: var(--text-muted); font-weight: 500;">Energy Dispensed</th>
-              <th style="padding: var(--spacing-3); color: var(--text-muted); font-weight: 500;">Revenue Generated</th>
+            <tr>
+              <th>Station</th>
+              <th>Sessions</th>
+              <th>Energy</th>
+              <th>Revenue</th>
             </tr>
           </thead>
           <tbody id="admin-utilization-list">
-            <tr><td colspan="4" style="text-align: center; padding: 2rem;"><div class="spinner" style="margin: 0 auto;"></div></td></tr>
+            <tr><td colspan="4" style="text-align: center; padding: 32px;"><div class="spinner" style="margin: 0 auto;"></div></td></tr>
           </tbody>
         </table>
       </div>
@@ -49,43 +51,40 @@ async function loadDashboardData() {
       api.getAdminUtilization()
     ]);
 
-    // Update Top Stats
     document.getElementById('admin-stats-grid').innerHTML = `
-      <div class="glass-card" style="text-align: center; padding: var(--spacing-4);">
-        <div class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.9rem;">Total Revenue</div>
-        <div style="font-size: 1.75rem; font-weight: 700; color: var(--accent-cyan);">₺${stats.totalRevenue.toFixed(2)}</div>
+      <div class="stat-card">
+        <div class="stat-label">Revenue</div>
+        <div class="stat-value text-blue">₺${stats.totalRevenue.toFixed(2)}</div>
       </div>
-      <div class="glass-card" style="text-align: center; padding: var(--spacing-4);">
-        <div class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.9rem;">Energy Dispensed</div>
-        <div style="font-size: 1.75rem; font-weight: 700; color: var(--accent-emerald);">${stats.totalEnergy.toFixed(1)} kWh</div>
+      <div class="stat-card">
+        <div class="stat-label">Energy</div>
+        <div class="stat-value text-green">${stats.totalEnergy.toFixed(1)}<span style="font-size:14px;font-weight:400;color:var(--text-2);"> kWh</span></div>
       </div>
-      <div class="glass-card" style="text-align: center; padding: var(--spacing-4);">
-        <div class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.9rem;">Active / Completed</div>
-        <div style="font-size: 1.75rem; font-weight: 700; color: var(--accent-amber);">${stats.activeSessions} / ${stats.completedSessions}</div>
+      <div class="stat-card">
+        <div class="stat-label">Sessions</div>
+        <div class="stat-value">${stats.activeSessions} <span style="font-size:14px;font-weight:400;color:var(--text-2);">/ ${stats.completedSessions}</span></div>
       </div>
-      <div class="glass-card" style="text-align: center; padding: var(--spacing-4);">
-        <div class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.9rem;">Registered Vehicles</div>
-        <div style="font-size: 1.75rem; font-weight: 700;">${stats.totalVehicles}</div>
+      <div class="stat-card">
+        <div class="stat-label">Vehicles</div>
+        <div class="stat-value">${stats.totalVehicles}</div>
       </div>
     `;
 
-    // Update Utilization Table
     const tbody = document.getElementById('admin-utilization-list');
     if (utilization.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-muted);">No utilization data available.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;" class="text-muted">No data yet.</td></tr>`;
       return;
     }
 
     tbody.innerHTML = utilization.map(u => `
-      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-        <td style="padding: var(--spacing-3); font-weight: 500;">${u.name}</td>
-        <td style="padding: var(--spacing-3);">${u.session_count}</td>
-        <td style="padding: var(--spacing-3); font-weight: 600;">${u.total_kwh.toFixed(1)} <span class="text-muted" style="font-size:0.8em;font-weight:normal;">kWh</span></td>
-        <td style="padding: var(--spacing-3); font-weight: 600; color: var(--accent-cyan);">₺${u.total_revenue.toFixed(2)}</td>
+      <tr>
+        <td style="font-weight: 500;">${u.name}</td>
+        <td>${u.session_count}</td>
+        <td>${u.total_kwh.toFixed(1)} <span class="text-muted">kWh</span></td>
+        <td class="text-blue" style="font-weight:600;">₺${u.total_revenue.toFixed(2)}</td>
       </tr>
     `).join('');
 
-    // Render Chart
     if (window.Chart) {
       const ctx = document.getElementById('sessionChart').getContext('2d');
       new window.Chart(ctx, {
@@ -94,7 +93,7 @@ async function loadDashboardData() {
           labels: ['Active', 'Completed'],
           datasets: [{
             data: [stats.activeSessions, stats.completedSessions],
-            backgroundColor: ['#F59E0B', '#10B981'],
+            backgroundColor: ['#FBBF24', '#34D399'],
             borderWidth: 0
           }]
         },
@@ -103,7 +102,7 @@ async function loadDashboardData() {
           maintainAspectRatio: true, 
           cutout: '70%',
           plugins: { 
-            legend: { position: 'bottom', labels: { color: '#9ca3af', font: { family: 'Inter', size: 11 } } } 
+            legend: { position: 'bottom', labels: { color: '#64748B', font: { family: 'Inter', size: 11 } } } 
           } 
         }
       });
@@ -111,6 +110,6 @@ async function loadDashboardData() {
 
   } catch (err) {
     document.getElementById('admin-stats-grid').innerHTML = `<div class="text-red">Failed to load analytics: ${err.message}</div>`;
-    document.getElementById('admin-utilization-list').innerHTML = `<tr><td colspan="4" class="text-red" style="text-align: center; padding: 2rem;">Failed to load data</td></tr>`;
+    document.getElementById('admin-utilization-list').innerHTML = `<tr><td colspan="4" class="text-red" style="text-align:center;padding:32px;">Failed to load data</td></tr>`;
   }
 }

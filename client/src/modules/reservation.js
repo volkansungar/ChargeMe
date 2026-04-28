@@ -12,20 +12,17 @@ window.openReservationModal = async (stationId, chargerId) => {
   const now = new Date();
   const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   
-  // Default end time (1 hour later)
   const end = new Date(now.getTime() + 60 * 60 * 1000);
   const endStr = `${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`;
 
   const html = `
-    <div class="modal-header">
-      <h2 class="text-gradient">Create Reservation</h2>
-    </div>
+    <h2 style="font-size: 18px; margin-bottom: 16px;">New Reservation</h2>
     
     <form id="reservation-form">
       <input type="hidden" id="r-charger" value="${chargerId}">
       
       <div class="form-group">
-        <label class="form-label">Select Vehicle</label>
+        <label class="form-label">Vehicle</label>
         <select id="r-vehicle" class="form-select" required>
           ${window.appState.vehicles.map(v => `<option value="${v.id}">${v.brand} ${v.model} (${v.connector_type})</option>`).join('')}
         </select>
@@ -36,22 +33,22 @@ window.openReservationModal = async (stationId, chargerId) => {
         <input type="date" id="r-date" class="form-input" min="${today}" value="${today}" required>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-4);">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
         <div class="form-group">
-          <label class="form-label">Start Time</label>
+          <label class="form-label">Start</label>
           <input type="time" id="r-start" class="form-input" value="${timeStr}" required>
         </div>
         <div class="form-group">
-          <label class="form-label">End Time (Max 2h)</label>
+          <label class="form-label">End (max 2h)</label>
           <input type="time" id="r-end" class="form-input" value="${endStr}" required>
         </div>
       </div>
       
-      <div style="margin-top: var(--spacing-6);">
-        <div class="text-amber" style="font-size: 0.85rem; margin-bottom: 0.5rem; text-align: center;">
-          <i class="ph ph-info" style="margin-right: 4px;"></i> A fully-refundable holding fee of ₺20.00 will be deducted from your wallet to secure this booking.
+      <div style="margin-top: 16px;">
+        <div class="text-amber" style="font-size: 12px; margin-bottom: 8px; text-align: center;">
+          <i class="ph ph-info"></i> A refundable ₺20 holding fee will be charged.
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Reservation (Pay ₺20)</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm (₺20)</button>
       </div>
     </form>
   `;
@@ -80,19 +77,19 @@ window.openReservationModal = async (stationId, chargerId) => {
     } catch (err) {
       window.showToast(err.message, 'error');
       btn.disabled = false;
-      btn.textContent = 'Confirm Reservation';
+      btn.textContent = 'Confirm (₺20)';
     }
   });
 };
 
 export async function renderReservations(container) {
   container.innerHTML = `
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-6);">
-      <h2 class="text-gradient">My Reservations</h2>
-      <a href="#/map" class="btn btn-primary">Book New Slot</a>
+    <div class="page-header">
+      <h2>My Reservations</h2>
+      <a href="#/map" class="btn btn-primary"><i class="ph ph-plus"></i> Book New</a>
     </div>
     <div id="reservations-list" class="grid-cards">
-      <div style="grid-column: 1/-1; text-align: center;"><div class="spinner"></div></div>
+      <div style="grid-column: 1/-1; text-align: center; padding: 24px;"><div class="spinner" style="margin: 0 auto;"></div></div>
     </div>
   `;
 
@@ -105,50 +102,49 @@ async function refreshReservationsList() {
     const reservations = await api.getReservations();
     
     if (reservations.length === 0) {
-      container.innerHTML = '<div class="glass-card" style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No active reservations.</div>';
+      container.innerHTML = '<div class="card" style="grid-column: 1/-1; text-align: center; color: var(--text-2); padding: 32px;">No active reservations.</div>';
       return;
     }
 
     container.innerHTML = reservations.map(r => {
       const isPast = new Date(`${r.reservation_date}T${r.end_time}`) < new Date();
-      const isActive = r.status === 'active';
       const isCancelled = r.status === 'cancelled';
       
       let actions = '';
       if (r.status === 'confirmed' && !isPast) {
         actions = `
-          <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-            <button class="btn btn-success" style="flex: 1; padding: 0.5rem;" onclick="startSessionFromReservation(${r.id}, ${r.vehicle_id}, ${r.charger_id})"><i class="ph ph-plug-charging"></i> Start Charging</button>
-            <button class="btn btn-outline text-red" style="padding: 0.5rem;" onclick="cancelReservation(${r.id})">Cancel</button>
+          <div style="margin-top: 12px; display: flex; gap: 6px;">
+            <button class="btn btn-success" style="flex: 1; padding: 6px;" onclick="startSessionFromReservation(${r.id}, ${r.vehicle_id}, ${r.charger_id})"><i class="ph ph-plug-charging"></i> Start</button>
+            <button class="btn btn-ghost text-red" style="padding: 6px 10px;" onclick="cancelReservation(${r.id})">Cancel</button>
           </div>
         `;
       }
 
       return `
-        <div class="glass-card" style="opacity: ${isPast || isCancelled ? 0.6 : 1}">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-            <div class="badge badge-${r.status === 'confirmed' ? 'available' : r.status === 'active' ? 'occupied' : 'offline'}">
-              ${r.status.toUpperCase()}
-            </div>
-            <div class="text-muted" style="font-size: 0.8rem;">#RES-${r.id}</div>
+        <div class="card" style="opacity: ${isPast || isCancelled ? 0.5 : 1}">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-${r.status === 'confirmed' ? 'available' : r.status === 'active' ? 'occupied' : 'offline'}">
+              ${r.status}
+            </span>
+            <span class="text-muted" style="font-size: 11px;">#${r.id}</span>
           </div>
           
-          <h3 style="margin-bottom: 0.2rem;">${r.station_name}</h3>
-          <p class="text-secondary" style="font-size: 0.9rem; margin-bottom: 1rem;">${r.charger_label} (${r.charger_type} ${r.power_kw}kW)</p>
+          <h3 style="font-size: 14px; margin-bottom: 2px;">${r.station_name}</h3>
+          <p class="text-muted" style="font-size: 12px; margin-bottom: 12px;">${r.charger_label} · ${r.charger_type} ${r.power_kw}kW</p>
           
-          <div style="background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-              <span class="text-muted" style="font-size: 0.85rem;">Date</span>
+          <div style="background: var(--bg-0); padding: 8px 10px; border-radius: var(--radius); margin-bottom: 8px; font-size: 13px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span class="text-muted">Date</span>
               <span style="font-weight: 500;">${r.reservation_date}</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
-              <span class="text-muted" style="font-size: 0.85rem;">Time</span>
-              <span class="text-emerald" style="font-weight: 600;">${r.start_time} - ${r.end_time}</span>
+              <span class="text-muted">Time</span>
+              <span style="font-weight: 600; color: var(--green);">${r.start_time} – ${r.end_time}</span>
             </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
-            <span class="text-muted">Vehicle:</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+            <span class="text-muted">Vehicle</span>
             <span>${r.vehicle_brand} ${r.vehicle_model}</span>
           </div>
           
@@ -162,12 +158,11 @@ async function refreshReservationsList() {
 }
 
 window.cancelReservation = async (id) => {
-  if (!confirm('Are you sure you want to cancel this reservation? Your ₺20 holding fee will be refunded.')) return;
+  if (!confirm('Cancel this reservation? Your ₺20 fee will be refunded.')) return;
   try {
     const res = await api.cancelReservation(id);
     window.showToast(res.message);
     refreshReservationsList();
-    // Update global wallet display
     if (window.updateWalletDisplay) window.updateWalletDisplay();
   } catch (err) {
     window.showToast(err.message, 'error');
@@ -186,7 +181,7 @@ window.startSessionFromReservation = async (resId, vId, cId) => {
   } catch (err) {
     window.showToast(err.message, 'error');
     if (err.message.includes('wallet')) {
-      window.location.hash = '#/session'; // go to session to see wallet
+      window.location.hash = '#/session';
     }
   }
 };

@@ -7,19 +7,20 @@
   <title>EV Charge Network — İzmir</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles/index.css" />
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div id="app">
-    <!-- Navigation -->
+  <div id="app" class="app-shell">
+
     <nav id="main-nav" class="glass-nav">
-      <div class="nav-brand" style="cursor: pointer;" id="app-brand" title="Switch to Admin Portal">
-        <span class="nav-logo" style="color: var(--accent-amber);"><i class="ph-fill ph-lightning"></i></span>
-        <span class="nav-title">EV Charge</span>
+      <div class="nav-brand" id="app-brand" title="Switch portal">
+        <i class="ph-fill ph-lightning" style="color: var(--green);"></i>
+        <span>EV Charge</span>
       </div>
+
       <div class="nav-links" id="driver-nav-links">
         <a href="#/map" class="nav-link" data-route="map">
           <span class="nav-icon"><i class="ph ph-map-trifold"></i></span>
@@ -42,6 +43,7 @@
           <span>History</span>
         </a>
       </div>
+
       <div class="nav-links hidden" id="admin-nav-links">
         <a href="#/admin/dashboard" class="nav-link admin-nav" data-route="admin/dashboard">
           <span class="nav-icon"><i class="ph ph-chart-pie-slice"></i></span>
@@ -56,28 +58,24 @@
           <span>Issues</span>
         </a>
         <a href="#/admin/stations" class="nav-link admin-nav" data-route="admin/stations">
-          <span class="nav-icon"><i class="ph ph-ev-station"></i></span>
+          <span class="nav-icon"><i class="ph ph-plug-charging"></i></span>
           <span>Fleet</span>
         </a>
       </div>
+
       <div class="nav-wallet" id="nav-wallet">
-        <span class="wallet-icon"><i class="ph ph-wallet"></i></span>
+        <i class="ph ph-wallet"></i>
         <span class="wallet-balance" id="wallet-balance">₺0.00</span>
       </div>
     </nav>
 
-    <!-- Main Content -->
     <main id="main-content" class="main-content">
-      <!-- Dynamic content injected here -->
     </main>
 
-    <!-- Toast Container -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- Modal Overlay -->
     <div id="modal-overlay" class="modal-overlay hidden">
-      <div id="modal-content" class="modal-content glass-card">
-        <!-- Dynamic modal content -->
+      <div id="modal-content" class="modal-content">
       </div>
     </div>
   </div>
