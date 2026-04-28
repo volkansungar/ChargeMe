@@ -1,0 +1,161 @@
+EV Charging Station Network
+Management System
+
+You are asked to develop a system to manage an electric vehicle charging station network, handle
+reservations and payments, and track charging sessions. The system serves EV drivers, station
+operators, and administrators.
+
+Key Features
+Station Catalog & Charger Types:
+Maintains a database of charging stations including location details, charger types (AC/DC), power
+output (22kW, 50kW, 150kW), pricing per kWh, connector types (Type 2, CCS, CHAdeMO), and
+operating hours.
+Interactive Map & Station Finder:
+Integrates Google Maps API to display all stations on an interactive map. Users can view their
+current location, see nearby stations with real-time availability status (available/occupied/offline), and
+get directions to selected station.
+Vehicle Registration:
+Enables users to register their electric vehicles with details (brand, model, battery capacity, connector
+type, plate number). System validates vehicle-charger compatibility when making reservations.
+Charging Reservation & Conflict Handling:
+Enables users to select a station on the map and reserve a charging slot for a specific date and
+time. The system enforces rules (e.g., “Maximum 2 hours per session”, “Cannot reserve more than
+24 hours in advance”) and prevents double-booking.
+Online Payment & Wallet System:
+Integrates a secure payment gateway for wallet top-ups. Charging fees are automatically deducted
+based on kWh consumed. Handles refunds for cancelled reservations and generates digital receipts.
+Charging Session Tracking:
+Records active charging sessions with real-time progress (current kWh, estimated time remaining,
+cost so far). Users can monitor their session status from the app.
+Station Maintenance & Issue Reporting:
+Users can report station issues (e.g., “Connector damaged”, “Payment terminal broken”). Operators
+can mark chargers as out-of-service, automatically cancelling affected reservations and notifying
+users.
+Favorites & Charging History:
+Users can save favorite stations for quick access and view their complete charging history with session details, energy consumed, and costs.
+Notifications:
+System alerts for reservation confirmations, charging started/completed, low wallet balance, and
+
+1
+
+station availability updates.
+Administrative Reporting:
+Provides revenue reports, station utilization statistics, peak hour analysis, and user activity summaries.
+
+Required Implementation
+Students are required to implement the vehicle registration module and the core reservation
+workflow, which consists of selecting a station on the map, checking charger-vehicle compatibility,
+creating a reservation for a specific time slot, displaying the route to the selected charger using
+Google Maps integration, and processing the charging session to calculate the final cost.
+
+Google Maps Integration
+For API documentation and setup, visit: https://mapsplatform.google.com/lp/maps-apis/
+
+Feature
+
+Description
+
+Location Display
+
+Shows user’s current location on the map
+
+Station Markers
+
+Displays all charging stations with markers
+
+Color Codes
+
+Green: Available, Yellow: Occupied, Red: Offline
+
+Filtering
+
+Filter by connector type, power output, price
+
+Distance Calculation
+
+Shows distance from user to each station
+
+Navigation
+
+Provides directions to selected station
+
+User Flow Example
+1. VEHICLE REGISTRATION
+Brand:
+
+Tesla
+
+Battery:
+
+75 kWh
+
+Model:
+
+Model 3
+
+Connector:
+
+CCS
+
+Plate:
+
+35 EV 2024
+
+2. STATION SEARCH ON MAP
+User Location: Alsancak
+• Karsiyaka Hub (2.3 km)
+• Bornova Station (4.1 km)
+• Buca Point (6.8 km)
+
+Available
+Occupied
+Offline
+
+3. CREATE RESERVATION
+
+2
+
+Station:
+
+Karsiyaka Hub
+
+Date:
+
+January 15, 2026
+
+Charger:
+
+DC 50kW #03
+
+Time:
+
+14:00 - 16:00
+
+Compatibility:
+
+CCS Supported ✓
+
+4. CHARGING SESSION
+Start:
+
+20% (15 kWh)
+
+End:
+
+80% (60 kWh)
+
+Consumed:
+
+45 kWh
+
+Unit Price:
+
+4 TL/kWh
+
+TOTAL:
+
+180 TL
+
+3
+
+

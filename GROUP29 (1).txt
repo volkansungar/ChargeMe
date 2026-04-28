@@ -1,0 +1,623 @@
+1. Introduction 
+This document presents the Requirements Analysis Report for the EV Charging Station Network 
+Management System, developed for the Fundamentals of Software Engineering course at Ege 
+University. The primary objective of this project is to define and structure the software requirements 
+necessary to build a comprehensive, reliable, and scalable solution for managing electric vehicle 
+charging infrastructures. 
+The proposed system aims to seamlessly connect various stakeholders, primarily serving EV drivers, 
+station operators, and system administrators. As the adoption of electric vehicles grows, drivers face 
+challenges such as finding available stations, ensuring charger compatibility, and managing payments. 
+To address these, our system introduces a robust set of core functionalities, including an interactive 
+station catalog with real-time availability, automated vehicle-to-charger compatibility verification, and 
+a conflict-free reservation workflow. Additionally, the platform ensures secure financial transactions 
+by processing active charging sessions and automatically deducting fees based on exact energy 
+consumption. 
+To deliver an optimal and context-aware user experience, the system is conceptualized around a 
+dual-platform architectural strategy. EV drivers will interact primarily through a mobile application, 
+which leverages the Google Maps API to provide location-based services, real-time navigation, and 
+on-the-go session monitoring. Conversely, a comprehensive web-based dashboard will be developed 
+for system administrators and station operators, empowering them to oversee hardware health, 
+manage administrative configurations, and extract analytical reports. 
+The requirements detailed in the following sections have been systematically elicited, classified, and 
+negotiated in accordance with established software engineering principles. By utilizing 
+Viewpoint-Oriented Requirements Definition (VORD) to capture diverse stakeholder needs and the 
+MoSCoW method for strict feature prioritization, this report establishes a highly structured, legally 
+compliant, and technically feasible foundation for the subsequent architectural design and 
+implementation phases.
+
+2. Identification of Viewpoints 
+Principal Viewpoints of the System 
+To ensure a comprehensive understanding of the system's requirements, we have identified and 
+categorized the stakeholders and interacting entities into three main viewpoint classifications: 
+Interactor (Direct), Indirect, and Domain. 
+●  Interactor Viewpoints:  EV Driver, Station Operator,  System Administrator, Payment Gateway, 
+Energy Provider, Google Maps API. 
+●  Indirect Viewpoints:  Marketing Department, Security Department, Legal/Regulatory 
+Compliance.
+●  Domain Viewpoints:  Industry Standards (OCPP), Government Regulations, Grid 
+Management Standards. 
+Description of each Viewpoint 
+Below is a detailed description of each identified viewpoint, outlining their specific roles, interactions 
+with the system, and their primary areas of concern. 
+Interactor Viewpoints (Direct Actors and External Systems) 
+●  EV Driver:  The primary end-user of the system. They  are responsible for registering their 
+electric vehicles, searching for available stations on the map, making time-specific 
+reservations, and monitoring their active charging sessions. Their main concern is usability, 
+real-time accuracy of station availability, and seamless payment processing. 
+●  Station Operator:  The personnel responsible for the  physical oversight and maintenance of 
+the charging hardware. They interact with the system to mark faulty chargers as "out of 
+service," which automatically triggers the cancellation of affected reservations to maintain 
+network reliability. 
+●  System Administrator:  The overarching manager of the  platform. They are responsible for 
+maintaining the database of charging stations, defining pricing models, updating operating 
+hours, and extracting analytical reports regarding revenue and station utilization. 
+●  Payment Gateway:  An external financial service that  securely handles user wallet top-ups. It 
+automatically deducts charging fees based on energy consumed and processes refunds for 
+canceled reservations according to system rules. 
+●  Google Maps API:  An external service integrated into  the system to provide geographical 
+context. It supplies interactive map data, displays real-time station markers (available, 
+occupied, offline), calculates distances, and provides navigation routes for the drivers. 
+●  Energy Provider:  The external utility entity supplying  the electricity. The system must 
+interact with this provider to periodically report total energy consumption to help balance 
+the grid load and facilitate dynamic "Smart Charging" speeds during peak hours. 
+Indirect Viewpoints (Internal Stakeholders) 
+●  Marketing Department:  An internal business unit that  does not directly interact with the 
+core charging workflow but relies on the system's data. They analyze users' favorite stations, 
+usage habits, and active user numbers to create personalized offers and summarize user 
+behavior. 
+●  Security Department:  The entity focused on the platform's  digital safety. They are concerned 
+with enforcing access restrictions, managing secure API keys, and ensuring that user data 
+and financial transactions are protected against breaches. 
+●  Legal / Regulatory Compliance:  An oversight viewpoint  ensuring the system operates within 
+the bounds of the law. They require the system to retain charging history data for legally 
+mandated financial reporting periods and mandate that user location and vehicle data are 
+stored securely according to personal data protection standards (e.g., GDPR). 
+Domain Viewpoints (Constraints and Standards) 
+●  Industry Standards (OCPP):  Represents the technical  communication protocols and 
+hardware constraints. This viewpoint dictates how the software must communicate with the 
+physical charging stations to ensure interoperability. 
+●  Government Regulations:  Represents the legal and safety  boundaries imposed by state 
+authorities. This includes compliance with safety certifications and fire protection standards 
+required for the physical operation of charging stations. 
+●  Grid Management Standards:  Represents the overarching  rules for power distribution. This 
+viewpoint enforces constraints on the system to prevent grid overloads, directly influencing 
+features like dynamic charging limits and peak hour energy management.
+
+ 3-5. Requirements Definition and Classification
+  Id  Viewpoint  Definition of Requirement  Functionality  Lifetime 
+ R1  System 
+ Administrator 
+ The system has to maintain a 
+ database of charging stations which 
+ include location details, charger 
+ types, power output, price per kwh 
+ and operating hours. 
+ Functional  Enduring 
+ R2  Google Maps API 
+ The system has to communicate 
+ securely with the API(via API key) to 
+ retrieve map data and navigation 
+ routes. 
+ Functional  Enduring 
+ R3  EV Driver  Drivers must be able to register 
+ information such as make,battery 
+ capacity,model and plate number. 
+ Functional  Enduring 
+ R4  EV Driver  The real-time 
+ status(available/occupied/closed) has 
+ to be viewable via Google Maps 
+ Functional  Enduring 
+ R5 
+ Station Operator  Operators should be able to mark 
+ faulty stations as “out of service” and 
+ inform the system of this. 
+ Functional  Enduring 
+ R6  System Admin 
+ Max. session intervals of 2 hours or a 
+ 24 hours booking regime must be 
+ manageable through the system. 
+ Domain  Volatile 
+ R7  EV Driver 
+ Users should be able to select a 
+ station, check vehicle-charger 
+ compatibility, and reserve a station 
+ for a specific time period. 
+ Functional  Enduring 
+ R8  System 
+ The total cost should be automatically 
+ calculated by multiplying the total 
+ kWh consumed at the end of the 
+ charging session by the unit price. 
+ Functional  Enduring
+  R9  Payment Gateway 
+ Wallet top-up transactions and 
+ automatic payment collection based 
+ on energy consumption should be 
+ handled securely. 
+ Functional  Enduring 
+ R10  Legal 
+ For cancelled reservations, the system 
+ should automatically initiate the 
+ refund process according to the 
+ specified rules. 
+ Functional  Enduring 
+ R11 
+ EV Driver 
+ Users should be able to monitor the 
+ status of their active charging 
+ sessions in real-time through the app. 
+ Functional  Enduring 
+ R12  System 
+ The system must continuously record 
+ and display the currently consumed 
+ kWh, the cost of the session so far, 
+ and the estimated time remaining 
+ until charging is complete. 
+ Functional  Enduring 
+ R13  System 
+ The remaining time estimate should 
+ be calculated dynamically using the 
+ station's power output (22kW, 50kW, 
+ 150kW) and the vehicle's battery 
+ capacity data. 
+ Domain  Enduring 
+ R14  System  Session data should be updated with 
+ low latency to give the user a 
+ "real-time" feel. 
+ Non-Functional 
+ Enduring 
+ R15  EV Driver 
+ Users should be able to report 
+ physical problems they encounter at 
+ stations (connector damage, terminal 
+ failure, etc.) through the application. 
+ Functional  Enduring 
+ R16  System 
+ When a unit is taken out of service, 
+ the system should automatically 
+ cancel all active reservations assigned 
+ to that unit. 
+ Functional  Enduring 
+ R17  EV Driver 
+ Users whose reservations have been 
+ cancelled should receive an instant 
+ notification and a refund, if 
+ applicable. 
+ Functional  Enduring 
+ R18  EV Driver  Users should be able to view past 
+ charging records including session 
+ details, energy consumed (kWh), and 
+ total cost. 
+ Functional  Enduring 
+ R19  System Admin 
+ The system must permanently and 
+ securely store all charging sessions in 
+ a database on a user-by-user basis. 
+ Functional  Enduring 
+ R20  Marketing Dept. 
+ Users' favorite stations and usage 
+ habits should be analyzable in order 
+ to provide personalized offers. 
+ Functional  Volatile 
+ R21  Legal 
+ Charging history data must be 
+ retained for legally mandated periods 
+ for financial reporting and potential 
+ objections. 
+ Domain  Enduring 
+ R22  EV Driver 
+ The system should send the user 
+ instant notifications for events such 
+ as reservation confirmations, charging 
+ start and completion. 
+ Functional  Enduring 
+ R23  EV Driver 
+ The system should alert the user 
+ when the wallet balance falls below a 
+ predetermined threshold. 
+ Functional  Enduring 
+ R24  EV Driver 
+ Users should receive notifications 
+ when the availability of their favorite 
+ or reserved stations changes (e.g., 
+ when they are full or malfunctioning). 
+ Functional  Enduring 
+ R25  System 
+ Notifications must be delivered via at 
+ least one of the following channels: 
+ email, push notification (in-app 
+ notification), or SMS. 
+ Non-Functional  Volatile 
+ R26  System Admin  The system should be able to check 
+ whether the sent notifications were 
+ received (log records). 
+ Functional  Enduring 
+ R27  System Admin 
+ The system should be able to report 
+ total revenue, successful and 
+ canceled transaction numbers for the 
+ selected date ranges. 
+ Functional  Enduring 
+ R28 
+ System Admin  Station utilization statistics should be 
+ presented to show how long each 
+ unit remained actively charging. 
+ Functional  Enduring 
+ R29  System Admin 
+ By conducting a daily and weekly 
+ "peak hour" analysis, the periods 
+ when demand is highest should be 
+ identified. 
+ Functional  Enduring 
+ R30  Marketing Dept. 
+ New users, active user numbers, and 
+ general user behavior summaries 
+ should be reported. 
+ Functional  Volatile 
+ R31  System Admin 
+ Reports should be visualized and 
+ exported via graphical interfaces 
+ (dashboards). 
+ Non-Functional 
+ Enduring 
+ R32  System 
+ Administrator 
+ The administrator must be able to 
+ define the charging types (AC/DC), 
+ power outputs (22kW, 50kW, 150kW), 
+ and connector types (Type 2, CCS, 
+ CHAdeMO) offered for each station in 
+ the system. 
+ Functional  Enduring 
+ R33  EV Driver 
+ Users should be able to filter stations 
+ by connector type, power output, and 
+ price. 
+ Functional  Enduring 
+ R34  System 
+ During the booking process, the 
+ system should automatically verify 
+ the compatibility of the selected 
+ charging unit's power output and 
+ connector type with the vehicle's 
+ specifications. 
+ Domain  Enduring 
+ R35  System Admin 
+ Station operating hours and the 
+ energy unit price per kWh should be 
+ subject to update according to 
+ administrative decisions. 
+ Functional  Volatile 
+ R36  EV Driver 
+ Users should be able to see all 
+ charging stations on an interactive 
+ map provided via the Google Maps 
+ API. 
+ Functional  Enduring 
+ R37 
+ EV Driver  The system should display the user's 
+ current location on the map in real 
+ time. 
+ Functional  Enduring 
+ R38  EV Driver 
+ Stations should be color-coded to 
+ indicate their availability (Green), 
+ occupied (Yellow), and out of service 
+ (Red) status. 
+ Functional  Enduring 
+ R39  Google Maps API 
+ The system should calculate the 
+ fastest route to the selected station 
+ and provide navigation support. 
+ Functional  Enduring
+  R40  Government Reg. 
+ User location data should only be 
+ used for navigation and distance 
+ calculation purposes and must be 
+ protected according to GDPR 
+ standards. 
+ Non-Functional  Enduring 
+ R41  Google Maps API 
+ Map data and API keys must be 
+ managed securely and access 
+ restrictions must be applied 
+ Non-Functional  Enduring 
+ R42  System 
+ When creating a reservation, the 
+ system should automatically check 
+ the compatibility of the connector 
+ type of the registered vehicle with the 
+ charger types offered by the selected 
+ station. 
+ Domain  Enduring 
+ R43  System 
+ The license plate number must be 
+ registered in the system as a "unique 
+ key" to prevent multiple accounts 
+ from being opened with the same 
+ license plate. 
+ Non-Functional  Enduring 
+ R44  EV Driver 
+ Users should be able to update 
+ existing vehicle information or define 
+ multiple vehicles. 
+ Functional  Enduring 
+ R45  Legal 
+ Recorded vehicle and license plate 
+ information must be stored in an 
+ encrypted database in accordance 
+ with personal data security standards. 
+ Non-Functional  Enduring 
+ R46  Government 
+ Regulations 
+ Safety certifications and fire 
+ protection standards compliance data 
+ required for charging stations must be 
+ recorded in the system. 
+ Domain  Enduring 
+ R47  Energy Providers 
+ The system must periodically report 
+ total energy consumption data to the 
+ provider in order to balance the grid 
+ load. 
+ Functional  Enduring 
+ R48  Energy Providers 
+ To maintain grid stability during peak 
+ hours, the system must be able to 
+ dynamically reduce charging speeds 
+ according to demand from the energy 
+ provider (Smart Charging). 
+ Domain  Volatile
+  R49  Station Operator 
+ The system must communicate with 
+ all physical charging station hardware 
+ using the standard Open Charge Point 
+ Protocol (OCPP) version 1.6 or higher. 
+ Domain  Enduring 
+ R50  Security Dept. 
+ The system must require Two-Factor 
+ Authentication (2FA) for any wallet 
+ top-up transactions exceeding a 
+ predefined risk threshold. 
+ Non-Functional  Enduring 
+ R51  EV Driver 
+ Users should be able to join a digital 
+ waitlist for a specific time slot if the 
+ station is fully booked, receiving an 
+ automatic push notification if the slot 
+ becomes available due to a 
+ cancellation. 
+ Functional  Volatile 
+ R52  System Admin 
+ All administrative actions, such as 
+ changing unit prices, modifying 
+ station statuses, or refunding users, 
+ must be recorded in an immutable 
+ audit log with timestamps and admin 
+ IDs. 
+ Functional  Enduring 
+ R53  System 
+ The core reservation and payment 
+ microservices must guarantee a 
+ 99.9% uptime (High Availability) to 
+ ensure drivers are not stranded 
+ without charging capabilities. 
+ Non-Functional  Enduring 
+ R54  Marketing Dept. 
+ The system should support a tiered 
+ loyalty program where users earn 
+ points for every kWh charged, which 
+ can be dynamically adjusted and 
+ redeemed for free charging sessions. 
+ Functional  Volatile 
+ R55  Energy Providers 
+ The system must support Time-of-Use 
+ (ToU) dynamic pricing, automatically 
+ applying different kWh billing rates 
+ depending on whether the charging 
+ occurs during grid peak or off-peak 
+ hours. 
+ Domain  Volatile 
+ R56  Corporate Client 
+ The system must provide a "Fleet 
+ Management" portal allowing B2B 
+ clients to register multiple company 
+ vehicles, manage employee access, 
+ and receive a consolidated monthly 
+ invoice. 
+ Functional  Enduring
+  R57  System 
+ The architecture must be scalable to 
+ handle at least 50,000 concurrent 
+ user sessions and map data queries 
+ without response latency exceeding 2 
+ seconds. 
+ Non-Functional  Enduring 
+ R58  EV Driver 
+ Users must be able to initiate and 
+ authenticate a charging session by 
+ swiping a registered physical RFID 
+ card at the station, acting as a fallback 
+ method in locations with poor mobile 
+ internet connectivity. 
+ Functional  Enduring 
+ R59  Industry Standards 
+ (OCPP) 
+ The system must support the ISO 
+ 15118 'Plug & Charge' standard, 
+ allowing registered vehicles to 
+ automatically authenticate, initiate 
+ charging, and process payments 
+ simply by plugging in the connector, 
+ eliminating the need for app 
+ interactions or RFID cards. 
+ Domain  Enduring 
+ R60  Station Operator 
+ The system must implement 
+ IoT-based predictive maintenance by 
+ continuously analyzing hardware 
+ telemetry (e.g., voltage drops, 
+ temperature spikes) via OCPP to 
+ automatically detect potential 
+ hardware failures and schedule 
+ maintenance before a complete 
+ breakdown occurs. 
+ Functional  Enduring 
+ R61  Grid Management 
+ Standards 
+ The system must automatically 
+ execute Local Dynamic Load 
+ Balancing algorithms at the station 
+ level, intelligently distributing the 
+ available power grid capacity among 
+ multiple actively charging vehicles 
+ based on their real-time State of 
+ Charge (SoC) to prevent infrastructure 
+ overload. 
+ Domain  Enduring 
+ R62  Driver 
+ The system must be delivered as a 
+ mobile application (iOS and Android 
+ compatible) for end-users to ensure 
+ on-the-go accessibility, seamless GPS 
+ integration, and instant push 
+ notifications. 
+ Non-Functional  Enduring
+  R63  System Admin & 
+ Station Operator 
+ The administrative and operational 
+ interfaces must be developed as a 
+ responsive, web-based dashboard 
+ optimized for desktop browsers to 
+ facilitate the management of complex 
+ data tables and network maps. 
+ Non-Functional  Enduring 
+ R64  UI Standards 
+ The system must provide immediate 
+ visual feedback (e.g., color changes, 
+ loading spinners) when a user 
+ initiates or stops a charging session, 
+ strictly adhering to the NN/g 
+ "Visibility of System Status" heuristic. 
+ Non-Functional  Enduring 
+ R65  UI Standards 
+ Critical interactive elements on the 
+ mobile map interface (such as the 
+ "Reserve Station" button) must be 
+ adequately sized and positioned in 
+ easily reachable screen areas, 
+ complying with Fitts’s Law. 
+ Non-Functional  Enduring 
+ R66  UI Standards 
+ The mobile application's interface 
+ must adhere to Apple Human 
+ Interface Guidelines (HIG) for iOS and 
+ Google Material Design for Android to 
+ ensure a consistent native user 
+ experience across platforms. 
+ Non-Functional  Volatile
+
+  7. Requirements Prioritization and Negotiation 
+ 7.1 Requirements Prioritization using MoSCoW Method 
+ To effectively manage development resources and ensure the core functionalities of the EV Charging 
+ Station Network Management System are delivered successfully, we utilized the MoSCoW 
+ prioritization technique. 
+ ●  Must Have (Critical for system operation):  These are non-negotiable requirements. Without 
+ them, the system cannot function as an EV charging network. 
+ ○  Station Catalog & Real-time availability status. 
+ ○  Vehicle Registration and compatibility checking. 
+ ○  Core Reservation workflow and conflict handling. 
+ ○  Charging Session processing and secure payment collection. 
+ ●  Should Have (Important but not immediately life-threatening to the launch):  High-priority 
+ features that significantly improve user experience and administration. 
+ ○  Issue reporting and automatic cancellation of affected reservations. 
+ ○  Administrative reporting (revenue, utilization). 
+ ○  System notifications via Email/SMS for reservation updates.
+
+ ●  Could Have (Desirable but expendable):  Enhancements that can be delayed to later versions 
+if time or budget constraints arise. 
+○  Marketing department analytics for personalized offers. 
+○  Tiered loyalty programs or digital waitlists for fully booked stations. 
+●  Won't Have (Out of scope for this release):  Features  agreed to be excluded from the current 
+2025-2026 project scope. 
+○  Vehicle-to-Grid (V2G) energy discharging functionalities. 
+○  Physical hardware manufacturing of the charging stations. 
+7.2 Requirements Negotiation and Conflict Resolution 
+During the requirements elicitation phase, overlapping or conflicting demands from different 
+viewpoints were identified. Through stakeholder negotiation, these conflicts were resolved to balance 
+user satisfaction, business goals, and technical/legal constraints. 
+●  Conflict 1: Data Utilization vs. Privacy 
+○  Stakeholders:  Marketing Dept. vs. Legal/Government Reg. 
+○  The Issue:  The Marketing Department requested deep  access to user location 
+histories and habits to create personalized campaigns. However, Government 
+Regulations strictly mandate that location data must be protected under GDPR 
+standards. 
+○  Resolution:  A compromise was reached. The system will use real-time location 
+strictly for navigation and distance calculation. Marketing data will be fully 
+anonymized, and users must explicitly "opt-in" to receive personalized offers, 
+satisfying both business needs and legal compliance. 
+●  Conflict 2: Maximum Performance vs. Grid Stability 
+○  Stakeholders:  EV Driver vs. Energy Providers. 
+○  The Issue:  EV Drivers expect maximum power output (e.g., full 150kW) at all times 
+for the fastest charging experience. Conversely, Energy Providers require load 
+balancing during peak grid hours to prevent local power outages. 
+○  Resolution:  The implementation of "Smart Charging".  The system will prioritize the 
+EV driver's reservation but retains the domain-level authority to dynamically reduce 
+charging speeds if a critical demand signal is received from the Energy Provider. The 
+user will be notified of the adjusted estimated completion time via the app. 
+●  Conflict 3: Booking Flexibility vs. Station Utilization 
+○  Stakeholders:  EV Driver vs. System Administrator. 
+○  The Issue:  Drivers want the ability to book stations days in advance and hold them 
+indefinitely. Administrators want to maximize station turnover and revenue. 
+○  Resolution:  A strict booking regime was negotiated.  Users cannot reserve more than 
+24 hours in advance, and sessions are capped at a maximum of 2 hours. To 
+compensate the drivers for this strictness, an automated refund policy was 
+established for operator-side cancellations.
+
+9. Use Cases of the Main Scenarios 
+Use Case 1: Create Reservation 
+This is the most critical workflow of the system, encompassing the management of vehicle 
+compatibility and time conflict resolution. 
+●  Inputs:  Station selected via the map, a specific date and time slot, and pre-verified registered 
+vehicle details. 
+●  Actors:  EV Driver. 
+●  Action:  The user selects a station on the interactive map and reserves a charging slot for a 
+specific date and time. During this process, the system verifies the hardware compatibility 
+between the user's vehicle and the selected charger. The system enforces business rules 
+(e.g., maximum duration) and prevents double-booking. 
+●  Outputs:  Turn-by-turn navigation to the selected charger  provided via Google Maps 
+integration, and a reservation confirmation notification sent to the user. 
+●  Exceptions:  Hardware incompatibility between the vehicle and the charger. Time slot conflict 
+(double-booking attempt). Attempting to reserve a session exceeding the 2-hour maximum 
+limit or booking more than 24 hours in advance. The selected station currently being in an 
+"offline" state. 
+Use Case 2: Process Charging Session 
+This is the core operational process where financial transactions and station-to-system 
+communications occur. 
+●  Inputs:  Consumed energy data (in kWh) transmitted  from the charging unit. 
+●  Actors:  EV Driver, Payment Gateway. 
+●  Action:  The system records the active charging session. Upon completion, the session is 
+processed to calculate the final cost. Charging fees are automatically deducted from the 
+user's wallet based on the exact amount of kWh consumed. 
+●  Outputs:  Real-time progress display showing current  kWh, estimated time remaining, and 
+accrued cost so far. Generation of a digital receipt. Notifications indicating the start and 
+completion of the charging session. An updated charging history record containing session 
+costs. 
+●  Exceptions:  The user having an insufficient (low) wallet balance to initiate or cover the 
+session. 
+Use Case 3: Vehicle Registration & Compatibility Setup 
+This is a mandatory workflow that enables user-based personalization of the system and forms the 
+foundation for pre-reservation hardware compatibility checks. 
+●  Inputs:  Vehicle Brand, Model, Battery Capacity (kWh),  Connector Type (Type 2, CCS, 
+CHAdeMO), and License Plate Number.
+
+●  Actors:  EV Driver. 
+●  Action:  The user logs into the system and inputs the  technical specifications and license 
+plate information of their electric vehicle. The system queries the database to verify if the 
+license plate number is unique. The system then saves the connector and battery details to 
+the user's profile to act as a compatibility filter for future reservations. 
+●  Outputs:  A UI notification confirming the successful  addition of the vehicle. An updated and 
+linked user-vehicle profile record in the database. 
+●  Exceptions:  The entered license plate number is already registered to another account in the 
+system (unique key constraint violation). The submitted technical details are incomplete or in 
+an unrecognized format. 

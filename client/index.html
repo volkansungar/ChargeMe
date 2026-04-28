@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="EV Charging Station Network Management System - Find, reserve, and charge your electric vehicle at stations across İzmir" />
+  <title>EV Charge Network — İzmir</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles/index.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Navigation -->
+    <nav id="main-nav" class="glass-nav">
+      <div class="nav-brand">
+        <span class="nav-logo">⚡</span>
+        <span class="nav-title">EV Charge</span>
+      </div>
+      <div class="nav-links">
+        <a href="#/map" class="nav-link" data-route="map">
+          <span class="nav-icon">🗺️</span>
+          <span>Map</span>
+        </a>
+        <a href="#/vehicles" class="nav-link" data-route="vehicles">
+          <span class="nav-icon">🚗</span>
+          <span>Vehicles</span>
+        </a>
+        <a href="#/reservations" class="nav-link" data-route="reservations">
+          <span class="nav-icon">📅</span>
+          <span>Reservations</span>
+        </a>
+        <a href="#/session" class="nav-link" data-route="session">
+          <span class="nav-icon">🔋</span>
+          <span>Charging</span>
+        </a>
+        <a href="#/history" class="nav-link" data-route="history">
+          <span class="nav-icon">📜</span>
+          <span>History</span>
+        </a>
+      </div>
+      <div class="nav-wallet" id="nav-wallet">
+        <span class="wallet-icon">💰</span>
+        <span class="wallet-balance" id="wallet-balance">₺0.00</span>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+      <!-- Dynamic content injected here -->
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Modal Overlay -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <div id="modal-content" class="modal-content glass-card">
+        <!-- Dynamic modal content -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

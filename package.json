@@ -1,0 +1,19 @@
+{
+  "name": "ev-charging-network",
+  "version": "1.0.0",
+  "description": "EV Charging Station Network Management System",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node server/index.js",
+    "client": "cd client && npx vite --port 5173",
+    "setup": "npm install && cd client && npm install"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "better-sqlite3": "^11.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "concurrently": "^9.1.0"
+  }
+}
