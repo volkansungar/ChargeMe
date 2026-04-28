@@ -103,11 +103,27 @@ router.post('/', (req, res) => {
     return res.status(409).json({ error: 'This time slot is already booked. Please choose a different time.' });
   }
 
-  // Create reservation
-  try {
+  // Check wallet balance for reservation fee (R10)
+  const HOLDING_FEE = 20.0;
+  const wallet = db.prepare('SELECT * FROM wallet LIMIT 1').get() || { balance: 0 };
+  if (wallet.balance < HOLDING_FEE) {
+    return res.status(400).json({ error: `Insufficient wallet balance. A holding fee of ₺${HOLDING_FEE} is required.` });
+  }
+
+  const transaction = db.transaction(() => {
+    // Deduct fee
+    db.prepare('UPDATE wallet SET balance = balance - ?').run(HOLDING_FEE);
+
+    // Create reservation
     const result = db.prepare(
       'INSERT INTO reservations (vehicle_id, charger_id, reservation_date, start_time, end_time) VALUES (?, ?, ?, ?, ?)'
     ).run(vehicle_id, charger_id, reservation_date, start_time, end_time);
+
+    return result.lastInsertRowid;
+  });
+
+  try {
+    const newReservationId = transaction();
 
     const reservation = db.prepare(`
       SELECT r.*, 
@@ -119,7 +135,7 @@ router.post('/', (req, res) => {
       JOIN stations s ON c.station_id = s.id
       JOIN vehicles v ON r.vehicle_id = v.id
       WHERE r.id = ?
-    `).get(result.lastInsertRowid);
+    `).get(newReservationId);
 
     res.status(201).json(reservation);
   } catch (err) {
@@ -137,8 +153,18 @@ router.delete('/:id', (req, res) => {
     return res.status(400).json({ error: 'Cannot cancel a completed reservation' });
   }
 
-  db.prepare("UPDATE reservations SET status = 'cancelled' WHERE id = ?").run(req.params.id);
-  res.json({ message: 'Reservation cancelled successfully' });
+  const transaction = db.transaction(() => {
+    db.prepare("UPDATE reservations SET status = 'cancelled' WHERE id = ?").run(req.params.id);
+    // Refund holding fee (R10)
+    db.prepare('UPDATE wallet SET balance = balance + 20').run();
+  });
+
+  try {
+    transaction();
+    res.json({ message: 'Reservation cancelled successfully and ₺20 refunded to wallet.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to cancel reservation' });
+  }
 });
 
 module.exports = router;

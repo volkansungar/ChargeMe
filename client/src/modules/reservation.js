@@ -48,7 +48,10 @@ window.openReservationModal = async (stationId, chargerId) => {
       </div>
       
       <div style="margin-top: var(--spacing-6);">
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Reservation</button>
+        <div class="text-amber" style="font-size: 0.85rem; margin-bottom: 0.5rem; text-align: center;">
+          ⚠️ A fully-refundable holding fee of ₺20.00 will be deducted from your wallet to secure this booking.
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Reservation (Pay ₺20)</button>
       </div>
     </form>
   `;
@@ -159,11 +162,13 @@ async function refreshReservationsList() {
 }
 
 window.cancelReservation = async (id) => {
-  if (!confirm('Are you sure you want to cancel this reservation?')) return;
+  if (!confirm('Are you sure you want to cancel this reservation? Your ₺20 holding fee will be refunded.')) return;
   try {
-    await api.cancelReservation(id);
-    window.showToast('Reservation cancelled');
+    const res = await api.cancelReservation(id);
+    window.showToast(res.message);
     refreshReservationsList();
+    // Update global wallet display
+    if (window.updateWalletDisplay) window.updateWalletDisplay();
   } catch (err) {
     window.showToast(err.message, 'error');
   }

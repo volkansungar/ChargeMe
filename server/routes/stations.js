@@ -134,8 +134,10 @@ router.put('/:stationId/chargers/:chargerId/status', adminAuth, (req, res) => {
       `).run(req.params.chargerId);
       cancelledCount = result.changes;
       
-      // Note for R17: This is where we would trigger external SMS/Email notifications
-      // "Your reservation has been cancelled due to station maintenance."
+      // Refund the 20 TL holding fee for each cancelled reservation (R17)
+      if (cancelledCount > 0) {
+        db.prepare('UPDATE wallet SET balance = balance + ?').run(20.0 * cancelledCount);
+      }
     }
     
     // Also update station status if all chargers are out of service
@@ -155,6 +157,27 @@ router.put('/:stationId/chargers/:chargerId/status', adminAuth, (req, res) => {
     res.json({ charger, cancelledCount, message: `Status updated. ${cancelledCount} active reservations cancelled.` });
   } catch (e) {
     res.status(500).json({ error: 'Failed to update charger status' });
+  }
+});
+
+// POST /api/stations/:id/issues - Report a physical issue (R15)
+router.post('/:id/issues', (req, res) => {
+  const db = getDb();
+  const { charger_id, description } = req.body;
+  const station_id = req.params.id;
+
+  if (!description) {
+    return res.status(400).json({ error: 'Description is required' });
+  }
+
+  try {
+    const result = db.prepare(
+      'INSERT INTO issue_reports (station_id, charger_id, description) VALUES (?, ?, ?)'
+    ).run(station_id, charger_id || null, description);
+
+    res.status(201).json({ message: 'Issue reported successfully. Thank you for your feedback.', id: result.lastInsertRowid });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to submit issue report' });
   }
 });
 

@@ -77,6 +77,18 @@ export const api = {
   async updateChargerStatus(stationId, chargerId, status) {
     return this.request(`/stations/${stationId}/chargers/${chargerId}/status`, 'PUT', { status });
   },
+  async reportIssue(stationId, chargerId, description) {
+    return this.request(`/stations/${stationId}/issues`, 'POST', { charger_id: chargerId, description });
+  },
+  async getAdminIssues() {
+    return this.request('/admin/issues');
+  },
+  async resolveIssue(issueId) {
+    return this.request(`/admin/issues/${issueId}/resolve`, 'PUT');
+  },
+  async getAdminMarketing() {
+    return this.request('/admin/marketing');
+  },
 
   // Helper
   async request(endpoint, method = 'GET', body = null) {

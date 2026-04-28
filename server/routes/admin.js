@@ -61,4 +61,59 @@ router.get('/utilization', (req, res) => {
   res.json(stats);
 });
 
+// GET /api/admin/issues - Get all issue reports
+router.get('/issues', (req, res) => {
+  const db = getDb();
+  const issues = db.prepare(`
+    SELECT i.*, s.name as station_name, c.charger_label 
+    FROM issue_reports i
+    JOIN stations s ON i.station_id = s.id
+    LEFT JOIN chargers c ON i.charger_id = c.id
+    ORDER BY i.created_at DESC
+  `).all();
+  res.json(issues);
+});
+
+// PUT /api/admin/issues/:id/resolve - Mark issue as resolved
+router.put('/issues/:id/resolve', (req, res) => {
+  const db = getDb();
+  db.prepare("UPDATE issue_reports SET status = 'resolved' WHERE id = ?").run(req.params.id);
+  res.json({ message: 'Issue marked as resolved' });
+});
+
+// GET /api/admin/marketing - Get marketing analytics (R20)
+router.get('/marketing', (req, res) => {
+  const db = getDb();
+  
+  // Most favorited stations
+  const favorites = db.prepare(`
+    SELECT s.name, COUNT(f.id) as fav_count
+    FROM stations s
+    JOIN favorites f ON s.id = f.station_id
+    GROUP BY s.id
+    ORDER BY fav_count DESC
+    LIMIT 5
+  `).all();
+
+  // Usage habits: sessions by time of day (morning, afternoon, evening, night)
+  // Since this is SQLite, we can extract the hour from start_time
+  const timeHabits = db.prepare(`
+    SELECT 
+      CASE 
+        WHEN CAST(substr(start_time, 1, 2) AS INTEGER) >= 6 AND CAST(substr(start_time, 1, 2) AS INTEGER) < 12 THEN 'Morning (6am-12pm)'
+        WHEN CAST(substr(start_time, 1, 2) AS INTEGER) >= 12 AND CAST(substr(start_time, 1, 2) AS INTEGER) < 18 THEN 'Afternoon (12pm-6pm)'
+        WHEN CAST(substr(start_time, 1, 2) AS INTEGER) >= 18 AND CAST(substr(start_time, 1, 2) AS INTEGER) < 24 THEN 'Evening (6pm-12am)'
+        ELSE 'Night (12am-6am)'
+      END as time_of_day,
+      COUNT(*) as session_count
+    FROM reservations
+    GROUP BY time_of_day
+  `).all();
+
+  res.json({
+    topFavorites: favorites,
+    timeHabits: timeHabits
+  });
+});
+
 module.exports = router;

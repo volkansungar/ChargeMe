@@ -7,6 +7,8 @@ import { renderHistory } from './modules/history.js';
 import { renderWalletModal } from './modules/wallet.js';
 import { renderAdminDashboard } from './modules/admin/dashboard.js';
 import { renderManageStations } from './modules/admin/manage-stations.js';
+import { renderAdminMarketing } from './modules/admin/marketing.js';
+import { renderAdminIssues } from './modules/admin/issues.js';
 
 // Global state
 window.appState = {
@@ -54,6 +56,12 @@ async function handleRoute() {
         break;
       case 'admin/dashboard':
         await renderAdminDashboard(content);
+        break;
+      case 'admin/marketing':
+        await renderAdminMarketing(content);
+        break;
+      case 'admin/issues':
+        await renderAdminIssues(content);
         break;
       case 'admin/stations':
         await renderManageStations(content);

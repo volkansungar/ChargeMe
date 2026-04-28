@@ -228,8 +228,9 @@ window.showStationDetail = async (id) => {
     }).join('');
 
     const html = `
-      <div class="modal-header">
-        <h2 class="text-gradient">${station.name}</h2>
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 class="text-gradient" style="margin: 0;">${station.name}</h2>
+        <button class="btn btn-outline text-amber" style="padding: 4px 8px; font-size: 0.8rem;" onclick="reportIssue(${station.id})">🚩 Report Issue</button>
       </div>
       <p class="text-secondary" style="margin-bottom: var(--spacing-4);">📍 ${station.address}</p>
       <p style="margin-bottom: var(--spacing-4);">🕒 Hours: ${station.operating_hours}</p>
@@ -241,5 +242,17 @@ window.showStationDetail = async (id) => {
     window.openModal(html);
   } catch (err) {
     window.showToast('Failed to load station details', 'error');
+  }
+};
+
+window.reportIssue = async (stationId) => {
+  const desc = prompt('Please describe the issue (e.g., "Charger A screen is broken", "Cable is damaged"):');
+  if (!desc || desc.trim() === '') return;
+
+  try {
+    const res = await api.reportIssue(stationId, null, desc);
+    window.showToast(res.message);
+  } catch (err) {
+    window.showToast(err.message, 'error');
   }
 };
