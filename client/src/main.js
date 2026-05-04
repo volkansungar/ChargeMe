@@ -94,14 +94,17 @@ window.openModal = (contentHtml) => {
   const overlay = document.getElementById('modal-overlay');
   const content = document.getElementById('modal-content');
   content.innerHTML = `
+    <div style="width: 36px; height: 5px; background: var(--bg-3); border-radius: 99px; margin: -16px auto 20px auto; opacity: 0.5;"></div>
     <button class="modal-close" onclick="window.closeModal()">×</button>
     ${contentHtml}
   `;
   overlay.classList.remove('hidden');
+  document.body.classList.add('modal-open');
 };
 
 window.closeModal = () => {
   document.getElementById('modal-overlay').classList.add('hidden');
+  document.body.classList.remove('modal-open');
 };
 
 export async function updateWalletDisplay() {

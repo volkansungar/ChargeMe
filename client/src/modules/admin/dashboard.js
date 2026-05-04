@@ -93,7 +93,7 @@ async function loadDashboardData() {
           labels: ['Active', 'Completed'],
           datasets: [{
             data: [stats.activeSessions, stats.completedSessions],
-            backgroundColor: ['#FBBF24', '#34D399'],
+            backgroundColor: ['#FFD60A', '#32D74B'],
             borderWidth: 0
           }]
         },

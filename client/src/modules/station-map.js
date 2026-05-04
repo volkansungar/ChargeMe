@@ -26,13 +26,13 @@ export async function renderMap(container) {
       <button class="btn btn-ghost" id="btn-clear-route" style="display: none;"><i class="ph ph-x"></i> Clear Route</button>
     </div>
     
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+    <div class="map-layout-wrapper">
       <div id="map-canvas" class="map-container"></div>
       
-      <div class="card" style="height: 560px; overflow-y: auto; padding: 16px;">
-        <h3 style="font-size: 14px; margin-bottom: 12px;">Nearby Stations</h3>
-        <div id="station-list" style="display: flex; flex-direction: column; gap: 8px;">
-          <div class="text-muted" style="font-size: 13px;">Loading...</div>
+      <div class="card" style="height: 100%; display: flex; flex-direction: column; overflow: hidden; padding: 0;">
+        <h3 style="font-size: 14px; padding: 16px 20px; border-bottom: 0.5px solid var(--border);">Nearby Stations</h3>
+        <div id="station-list" style="flex: 1; overflow-y: auto; padding: 0;">
+          <div class="text-muted" style="padding: 16px 20px; font-size: 13px;">Loading...</div>
         </div>
       </div>
     </div>
@@ -86,16 +86,15 @@ function initMap(googleMaps) {
     center: userLocation,
     zoom: 12,
     styles: [
-      { elementType: "geometry", stylers: [{ color: "#111A2E" }] },
-      { elementType: "labels.text.stroke", stylers: [{ color: "#0B1121" }] },
-      { elementType: "labels.text.fill", stylers: [{ color: "#64748B" }] },
-      { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#94A3B8" }] },
-      { featureType: "road", elementType: "geometry", stylers: [{ color: "#1E2D52" }] },
-      { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#111A2E" }] },
-      { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#64748B" }] },
-      { featureType: "water", elementType: "geometry", stylers: [{ color: "#0B1121" }] },
-      { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#1E2D52" }] },
-      { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#0B1121" }] },
+      { elementType: "geometry", stylers: [{ color: "#000000" }] },
+      { elementType: "labels.text.stroke", stylers: [{ color: "#1C1C1E" }] },
+      { elementType: "labels.text.fill", stylers: [{ color: "#8E8E93" }] },
+      { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#F5F5F7" }] },
+      { featureType: "road", elementType: "geometry", stylers: [{ color: "#1C1C1E" }] },
+      { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#2C2C2E" }] },
+      { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8E8E93" }] },
+      { featureType: "water", elementType: "geometry", stylers: [{ color: "#0A84FF" }, { opacity: 0.1 }] },
+      { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3A3A3C" }] },
     ]
   });
 
@@ -139,9 +138,9 @@ async function loadStations() {
       if (!hasCompatibleCharger && (filterConn || filterPower > 0)) return;
       visibleCount++;
 
-      let statusColor = '#34D399';
-      if (station.status === 'offline') statusColor = '#F87171';
-      else if (station.chargers.every(c => c.status === 'occupied' || c.status === 'out_of_service')) statusColor = '#FBBF24';
+      let statusColor = '#32D74B'; // Apple Green
+      if (station.status === 'offline') statusColor = '#FF453A'; // Apple Red
+      else if (station.chargers.every(c => c.status === 'occupied' || c.status === 'out_of_service')) statusColor = '#FFD60A'; // Apple Yellow
 
       const marker = new window.google.maps.Marker({
         position: { lat: station.lat, lng: station.lng },
@@ -161,17 +160,17 @@ async function loadStations() {
       markers.push(marker);
 
       sidebar.innerHTML += `
-        <div style="padding: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius); cursor: pointer; font-size: 13px;" onclick="showStationDetail(${station.id})">
+        <div style="padding: 14px; border-bottom: 0.5px solid var(--border); cursor: pointer; font-size: 13px;" onclick="showStationDetail(${station.id})">
           <div style="display:flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-            <div style="font-weight: 600; font-size: 13px;">${station.name}</div>
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-0);">${station.name}</div>
             <span class="badge badge-${station.status === 'available' ? 'available' : 'offline'}">${station.status}</span>
           </div>
-          <div class="text-muted" style="font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; gap: 3px;">
+          <div class="text-1" style="font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
             <i class="ph ph-map-pin"></i> ${station.distance.toFixed(1)} km
           </div>
           <div style="display: flex; gap: 4px; flex-wrap: wrap;">
             ${Array.from(new Set(station.chargers.map(c => c.connector_type))).map(type => 
-              `<span style="background: var(--bg-3); padding: 1px 6px; border-radius: 4px; font-size: 11px; color: var(--text-1);">${type}</span>`
+              `<span style="background: var(--bg-2); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 500; color: var(--text-1); text-transform: uppercase;">${type}</span>`
             ).join('')}
           </div>
         </div>
