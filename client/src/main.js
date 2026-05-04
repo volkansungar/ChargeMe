@@ -5,10 +5,33 @@ import { renderReservations } from './modules/reservation.js';
 import { renderSessions } from './modules/charging-session.js';
 import { renderHistory } from './modules/history.js';
 import { renderWalletModal } from './modules/wallet.js';
+import { renderWelcome } from './modules/welcome.js';
 import { renderAdminDashboard } from './modules/admin/dashboard.js';
 import { renderManageStations } from './modules/admin/manage-stations.js';
 import { renderAdminMarketing } from './modules/admin/marketing.js';
 import { renderAdminIssues } from './modules/admin/issues.js';
+
+// Theme Management
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateThemeIcon(savedTheme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+  const icon = document.querySelector('#nav-theme i');
+  if (icon) {
+    icon.className = theme === 'light' ? 'ph ph-sun' : 'ph ph-moon';
+  }
+}
 
 // Global state
 window.appState = {
@@ -18,7 +41,7 @@ window.appState = {
 
 // Router
 async function handleRoute() {
-  const hash = window.location.hash || '#/map';
+  const hash = window.location.hash || '#/welcome';
   const route = hash.replace('#/', '');
   
   // Update nav UI
@@ -31,14 +54,25 @@ async function handleRoute() {
 
   // Auth / UI Mode Switch
   const isRouteAdmin = route.startsWith('admin');
-  document.getElementById('driver-nav-links').classList.toggle('hidden', isRouteAdmin);
-  document.getElementById('admin-nav-links').classList.toggle('hidden', !isRouteAdmin);
-  document.getElementById('nav-wallet').classList.toggle('hidden', isRouteAdmin);
+  const isWelcome = route === 'welcome';
+  
+  document.getElementById('main-nav').classList.remove('hidden'); // Show nav everywhere
+  document.getElementById('main-nav').classList.toggle('nav-transparent', isWelcome);
+  document.getElementById('app-brand').classList.toggle('hidden', isWelcome); // Hide brand on welcome for cinematic feel
+  document.getElementById('driver-nav-links').classList.toggle('hidden', isRouteAdmin || isWelcome);
+  document.getElementById('admin-nav-links').classList.toggle('hidden', !isRouteAdmin || isWelcome);
+  document.getElementById('nav-wallet').classList.toggle('hidden', isRouteAdmin || isWelcome);
+  document.getElementById('nav-admin').classList.toggle('hidden', isWelcome);
+  document.getElementById('nav-admin').classList.toggle('active', isRouteAdmin);
+  document.getElementById('nav-admin').querySelector('span').textContent = isRouteAdmin ? 'Driver Mode' : 'Admin';
 
   window.appState.isAdmin = isRouteAdmin;
 
   try {
     switch (route) {
+      case 'welcome':
+        await renderWelcome(content);
+        break;
       case 'map':
         await renderMap(content);
         break;
@@ -67,7 +101,7 @@ async function handleRoute() {
         await renderManageStations(content);
         break;
       default:
-        window.location.hash = window.appState.isAdmin ? '#/admin/dashboard' : '#/map';
+        window.location.hash = window.appState.isAdmin ? '#/admin/dashboard' : '#/welcome';
     }
   } catch (err) {
     content.innerHTML = `<div class="glass-card"><h2 class="text-red">Error</h2><p>${err.message}</p></div>`;
@@ -129,16 +163,25 @@ export async function updateWalletDisplay() {
 async function init() {
   document.getElementById('nav-wallet').addEventListener('click', renderWalletModal);
   
-  // App Brand clicks toggle between Driver and Admin
+  // Logo goes to Welcome
   document.getElementById('app-brand').addEventListener('click', () => {
-    if (window.appState.isAdmin) {
+    window.location.hash = '#/welcome';
+  });
+
+  // Admin Toggle Button
+  document.getElementById('nav-admin').addEventListener('click', () => {
+    if (window.location.hash.includes('admin')) {
       window.location.hash = '#/map';
     } else {
       window.location.hash = '#/admin/dashboard';
     }
   });
 
+  // Theme Toggle
+  document.getElementById('nav-theme').addEventListener('click', toggleTheme);
+
   // Initial fetch
+  initTheme();
   await updateWalletDisplay();
   try {
     window.appState.vehicles = await api.getVehicles();

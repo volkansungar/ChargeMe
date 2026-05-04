@@ -24,10 +24,10 @@ export async function renderWalletModal() {
       <div class="form-group">
         <label class="form-label">Top Up Amount (₺)</label>
         <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-          <button type="button" class="btn btn-ghost" style="flex:1; padding: 6px;" onclick="document.getElementById('t-amount').value = 100">100</button>
-          <button type="button" class="btn btn-ghost" style="flex:1; padding: 6px;" onclick="document.getElementById('t-amount').value = 250">250</button>
-          <button type="button" class="btn btn-ghost" style="flex:1; padding: 6px;" onclick="document.getElementById('t-amount').value = 500">500</button>
-          <button type="button" class="btn btn-ghost" style="flex:1; padding: 6px;" onclick="document.getElementById('t-amount').value = 1000">1000</button>
+          <button type="button" class="btn-chip" style="flex:1;" onclick="document.getElementById('t-amount').value = 100">100</button>
+          <button type="button" class="btn-chip" style="flex:1;" onclick="document.getElementById('t-amount').value = 250">250</button>
+          <button type="button" class="btn-chip" style="flex:1;" onclick="document.getElementById('t-amount').value = 500">500</button>
+          <button type="button" class="btn-chip" style="flex:1;" onclick="document.getElementById('t-amount').value = 1000">1000</button>
         </div>
         <input type="number" id="t-amount" class="form-input" min="1" max="10000" required placeholder="Custom amount">
       </div>
