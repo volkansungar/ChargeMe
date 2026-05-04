@@ -138,9 +138,9 @@ async function loadStations() {
       if (!hasCompatibleCharger && (filterConn || filterPower > 0)) return;
       visibleCount++;
 
-      let statusColor = '#32D74B'; // Apple Green
-      if (station.status === 'offline') statusColor = '#FF453A'; // Apple Red
-      else if (station.chargers.every(c => c.status === 'occupied' || c.status === 'out_of_service')) statusColor = '#FFD60A'; // Apple Yellow
+      let statusColor = '#32D74B'; // System Green
+      if (station.status === 'offline') statusColor = '#FF453A'; // System Red
+      else if (station.chargers.every(c => c.status === 'occupied' || c.status === 'out_of_service')) statusColor = '#FFD60A'; // System Yellow
 
       const marker = new window.google.maps.Marker({
         position: { lat: station.lat, lng: station.lng },

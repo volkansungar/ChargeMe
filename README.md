@@ -59,40 +59,83 @@ A dedicated management portal for network oversight and business intelligence.
 *   **Utilization Heatmaps**: Analysis of peak hours and station-specific demand.
 *   **Hardware Control**: remote maintenance toggle ("Out of Service" mode) which triggers automatic reservation cancellations and user refunds.
 
----
-
 ## 🎨 Design Philosophy
 
-The user interface was engineered to meet the visual standards of modern SaaS platforms (e.g., Linear, Vercel).
-*   **Color Palette**: Deep Navy (`#0B1121`) for surfaces to reduce eye strain, accented with Electric Green (`#34D399`) for high-priority interactive elements.
-*   **Iconography**: Standardized vector set using **Phosphor Icons**.
-*   **Feedback Loops**: Optimized toast notification system and real-time charging progress bars (1Hz update frequency).
+The user interface follows a **Modern Dark Mode Interface** strategy focusing on physical realism and geometric precision.
+*   **Aesthetics**: OLED-optimized pure black (`#000000`) surfaces with vibrant semantic accent colors.
+*   **Physics**: Implements "Spring Physics" for all transitions using `cubic-bezier(0.2, 0.8, 0.2, 1)` and a unique "Push-Back" background effect for modals.
+*   **Geometry**: Strict adherence to the **8pt Grid System** and "Continuous Corner" (Squircle) geometry for all containers.
+*   **Materials**: Advanced use of `backdrop-filter: blur() saturate()` to create premium glassmorphism effects.
+
+---
+
+## 🧪 Testing & Quality Assurance
+
+This project implements a rigorous testing strategy divided into three levels, as specified in the course documentation:
+
+1.  **Unit Testing** (`Vitest + JSDOM`): Validates individual UI helpers and frontend logic in isolation.
+2.  **Integration Testing** (`Supertest`): Ensures that API endpoints, database operations, and middle-wares work seamlessly together.
+3.  **Requirements Validation** (`tests/requirements.test.js`): A dedicated test suite that maps code behavior directly to official project requirements (R3, R8, R15, R16).
+
+### 📊 Running Tests
+*   **Full Suite**: `npm test`
+*   **Visual Dashboard**: `npm run test:ui` (Recommended for presentations to show real-time passes).
+*   **Coverage Report**: `npm run test:coverage`
 
 ---
 
 ## 🛠 Installation & Setup
 
-### Environment Configuration
-The system requires a Google Maps API Key with **Maps JavaScript API**, **Directions API**, and **Places API** enabled.
+Follow these steps to get the development environment running locally.
 
-1.  **Clone & Install**
-    ```bash
-    git clone [repo-link]
-    cd FSE
-    npm install
-    ```
+### 📋 Prerequisites
+*   **Node.js** (v18.0 or higher recommended)
+*   **npm** (comes with Node.js)
+*   A **Google Maps API Key** with the following APIs enabled:
+    *   Maps JavaScript API
+    *   Directions API
+    *   Places API
 
-2.  **Environment Setup**
-    Create a `.env` file in the root:
-    ```env
-    GOOGLE_MAPS_API_KEY=AIza...
-    PORT=3000
-    ```
+### 1. Clone the Repository
+```bash
+git clone https://github.com/[your-username]/[repo-name].git
+cd [repo-name]
+```
 
-3.  **Run Development Environment**
-    ```bash
-    npm run dev
-    ```
+### 2. Install Dependencies
+The project consists of a root package (server) and a `client` directory (Vite frontend). You can install everything with a single command:
+```bash
+npm run setup
+```
+*Alternatively, you can run `npm install` in the root and then `cd client && npm install`.*
+
+### 3. Environment Configuration
+Create a `.env` file in the root directory and add your Google Maps API key:
+```env
+GOOGLE_MAPS_API_KEY=YOUR_ACTUAL_API_KEY_HERE
+PORT=3000
+```
+
+### 4. Database Initialization
+The system uses **SQLite**, so no separate database installation is required. The database schema and initial seed data (stations, chargers, wallet balance) will be automatically created the first time you start the server.
+
+### 5. Run the Application
+Start both the backend server and the frontend development server concurrently:
+```bash
+npm run dev
+```
+*   The **Frontend** will be available at: `http://localhost:5173`
+*   The **Backend API** will be available at: `http://localhost:3000`
+
+### 6. Running Tests
+To verify the installation and system requirements:
+```bash
+# Run all tests once
+npm test
+
+# Open the visual test dashboard
+npm run test:ui
+```
 
 ---
 
