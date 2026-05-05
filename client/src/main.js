@@ -197,6 +197,13 @@ async function init() {
     window.appState.vehicles = await api.getVehicles();
   } catch(e) {}
   
+  // Global Event Listeners
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'modal-overlay') {
+      window.closeModal();
+    }
+  });
+  
   // Set up routing
   window.addEventListener('hashchange', handleRoute);
   handleRoute();
