@@ -2,59 +2,61 @@ import { api } from '../services/api.js';
 
 export async function renderVehicles(container) {
   container.innerHTML = `
-    <div class="page-header">
-      <h2>Vehicles</h2>
-    </div>
-
-    <div style="display: flex; gap: 40px; align-items: start;">
-      <!-- Left: Registration Form (Wider & Shorter) -->
-      <div class="card" style="width: 440px; position: sticky; top: 80px; padding: 20px;">
-        <h3 style="font-size: 16px; margin-bottom: 20px;">Add New Vehicle</h3>
-        <form id="vehicle-form" style="display: flex; flex-direction: column; gap: 16px;">
-          
-          <!-- Row 1: Brand & Model -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">Brand</label>
-              <input type="text" id="v-brand" class="form-input" required placeholder="Tesla">
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">Model</label>
-              <input type="text" id="v-model" class="form-input" required placeholder="Model 3">
-            </div>
-          </div>
-
-          <!-- Row 2: Battery & Connector -->
-          <div style="display: grid; grid-template-columns: 100px 1fr; gap: 12px;">
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">kWh</label>
-              <input type="number" id="v-battery" class="form-input" required placeholder="75">
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">Connector Type</label>
-              <select id="v-connector" class="form-select" required>
-                <option value="Type 2">Type 2 (AC)</option>
-                <option value="CCS">CCS (DC Fast)</option>
-                <option value="CHAdeMO">CHAdeMO (DC Fast)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Row 3: Plate & Button -->
-          <div style="display: grid; grid-template-columns: 1fr 140px; gap: 12px; align-items: flex-end;">
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">License Plate</label>
-              <input type="text" id="v-plate" class="form-input" required placeholder="35 EV 2024">
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Add</button>
-          </div>
-          
-        </form>
+    <div style="max-width: 1040px; margin: 0 auto; padding: 0 20px;">
+      <div class="page-header" style="margin-bottom: 24px;">
+        <h2>Vehicles</h2>
       </div>
-      
-      <!-- Right: Vehicle List (Stay Narrow) -->
-      <div style="flex: 1; max-width: 440px;" id="vehicles-list">
-        <div class="spinner"></div>
+  
+      <div style="display: flex; gap: 40px; align-items: start; justify-content: center;">
+        <!-- Left: Registration Form -->
+        <div class="card" style="width: 500px; position: sticky; top: 100px; padding: 28px;">
+          <h3 style="font-size: 17px; margin-bottom: 24px;">Add New Vehicle</h3>
+          <form id="vehicle-form" style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Row 1: Brand & Model -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Brand</label>
+                <input type="text" id="v-brand" class="form-input" required placeholder="Tesla">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Model</label>
+                <input type="text" id="v-model" class="form-input" required placeholder="Model 3">
+              </div>
+            </div>
+  
+            <!-- Row 2: Battery & Connector -->
+            <div style="display: grid; grid-template-columns: 120px 1fr; gap: 16px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Battery (kWh)</label>
+                <input type="number" id="v-battery" class="form-input" required placeholder="75">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Connector Type</label>
+                <select id="v-connector" class="form-select" required>
+                  <option value="Type 2">Type 2 (AC)</option>
+                  <option value="CCS">CCS (DC Fast)</option>
+                  <option value="CHAdeMO">CHAdeMO (DC Fast)</option>
+                </select>
+              </div>
+            </div>
+  
+            <!-- Row 3: Plate & Button -->
+            <div style="display: grid; grid-template-columns: 1fr 160px; gap: 16px; align-items: flex-end;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">License Plate</label>
+                <input type="text" id="v-plate" class="form-input" required placeholder="35 EV 2024">
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%; height: 44px;">Add Vehicle</button>
+            </div>
+            
+          </form>
+        </div>
+        
+        <!-- Right: Vehicle List -->
+        <div style="width: 500px;" id="vehicles-list">
+          <div class="spinner"></div>
+        </div>
       </div>
     </div>
   `;

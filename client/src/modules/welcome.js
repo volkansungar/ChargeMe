@@ -6,7 +6,7 @@ export async function renderWelcome(container) {
       
       <!-- Hero Section -->
       <section class="hero-section" style="text-align: center; padding: 60px 20px;">
-        <div class="hero-icon" style="font-size: 64px; color: var(--green); margin-bottom: 24px; animation: hero-icon-float 3s ease-in-out infinite;">
+        <div class="hero-icon" style="font-size: 64px; color: var(--blue); margin-bottom: 24px; animation: hero-icon-float 3s ease-in-out infinite;">
           <i class="ph-fill ph-lightning"></i>
         </div>
         <h1 style="font-size: 48px; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 16px; color: var(--text-0);">
@@ -27,24 +27,30 @@ export async function renderWelcome(container) {
       </section>
 
       <!-- Features Grid -->
-      <section class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 40px 0;">
+      <section class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; padding: 60px 0;">
         
-        <div class="glass-card" style="transition-delay: 0.1s;">
-          <div style="font-size: 24px; color: var(--blue); margin-bottom: 16px;"><i class="ph ph-map-trifold"></i></div>
-          <h3 style="margin-bottom: 8px;">Smart Discovery</h3>
-          <p class="text-secondary" style="font-size: 14px;">Find available chargers near you with Google Maps integration and real-time status updates.</p>
+        <div class="glass-card feature-item" style="transition-delay: 0.1s; padding: 40px 32px; text-align: center;">
+          <div class="feature-icon-wrapper" style="background: var(--blue-dim); color: var(--blue);">
+            <i class="ph-fill ph-navigation-arrow"></i>
+          </div>
+          <h3 style="font-size: 20px; margin-bottom: 12px; font-weight: 700;">Smart Discovery</h3>
+          <p class="text-secondary" style="font-size: 15px; line-height: 1.5;">Find available chargers near you with real-time status updates and turn-by-turn navigation.</p>
         </div>
 
-        <div class="glass-card" style="transition-delay: 0.2s;">
-          <div style="font-size: 24px; color: var(--purple); margin-bottom: 16px;"><i class="ph ph-calendar-check"></i></div>
-          <h3 style="margin-bottom: 8px;">Instant Booking</h3>
-          <p class="text-secondary" style="font-size: 14px;">Reserve your slot up to 24 hours in advance. No more waiting in line at charging stations.</p>
+        <div class="glass-card feature-item" style="transition-delay: 0.2s; padding: 40px 32px; text-align: center;">
+          <div class="feature-icon-wrapper" style="background: var(--blue-dim); color: var(--blue);">
+            <i class="ph-fill ph-calendar-check"></i>
+          </div>
+          <h3 style="font-size: 20px; margin-bottom: 12px; font-weight: 700;">Instant Booking</h3>
+          <p class="text-secondary" style="font-size: 15px; line-height: 1.5;">Reserve your slot in seconds. No more waiting in line or checking multiple apps for availability.</p>
         </div>
 
-        <div class="glass-card" style="transition-delay: 0.3s;">
-          <div style="font-size: 24px; color: var(--green); margin-bottom: 16px;"><i class="ph ph-wallet"></i></div>
-          <h3 style="margin-bottom: 8px;">Secure Wallet</h3>
-          <p class="text-secondary" style="font-size: 14px;">Automatic billing based on kWh consumption. Track your spending with detailed history.</p>
+        <div class="glass-card feature-item" style="transition-delay: 0.3s; padding: 40px 32px; text-align: center;">
+          <div class="feature-icon-wrapper" style="background: var(--blue-dim); color: var(--blue);">
+            <i class="ph-fill ph-credit-card"></i>
+          </div>
+          <h3 style="font-size: 20px; margin-bottom: 12px; font-weight: 700;">Secure Wallet</h3>
+          <p class="text-secondary" style="font-size: 15px; line-height: 1.5;">Automatic billing and instant top-ups. Manage your charging expenses with a single tap.</p>
         </div>
 
       </section>
@@ -71,6 +77,29 @@ export async function renderWelcome(container) {
         }
         .features-grid .glass-card {
           animation: welcome-fade-in 0.8s var(--spring-easing) both;
+          border-radius: 28px; /* Slightly more rounded for premium feel */
+        }
+        .feature-icon-wrapper {
+          width: 56px;
+          height: 56px;
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 28px;
+          margin: 0 auto 24px auto;
+          transition: transform 0.3s var(--spring-easing);
+        }
+        .feature-item:hover .feature-icon-wrapper {
+          transform: scale(1.1) rotate(5deg);
+        }
+        .feature-item {
+          transition: all 0.4s var(--spring-easing) !important;
+        }
+        .feature-item:hover {
+          background: var(--bg-2);
+          transform: translateY(-10px);
+          box-shadow: var(--shadow-lg);
         }
       </style>
     </div>

@@ -115,13 +115,23 @@ window.showToast = (message, type = 'success') => {
   toast.className = `toast ${type}`;
   toast.innerHTML = `
     <span>${type === 'success' ? '<i class="ph ph-check-circle"></i>' : '<i class="ph ph-x-circle"></i>'}</span>
-    <span>${message}</span>
+    <span style="flex: 1;">${message}</span>
   `;
+  
+  let dismissTimer;
+  const startDismissTimer = (delay = 3000) => {
+    dismissTimer = setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(20px)';
+      setTimeout(() => toast.remove(), 300);
+    }, delay);
+  };
+
+  toast.addEventListener('mouseenter', () => clearTimeout(dismissTimer));
+  toast.addEventListener('mouseleave', () => startDismissTimer(1500));
+
   container.appendChild(toast);
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+  startDismissTimer();
 };
 
 window.openModal = (contentHtml) => {
