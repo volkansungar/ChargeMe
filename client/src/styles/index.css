@@ -1365,3 +1365,49 @@ body.modal-open {
     font-size: 40px;
   }
 }
+
+/* ═══════════════════
+   Favorite Button
+   ═══════════════════ */
+.btn-fav {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-2);
+  color: var(--text-2);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.25s var(--spring-easing);
+  flex-shrink: 0;
+}
+
+.btn-fav:hover {
+  background: var(--red-dim);
+  color: var(--red);
+  transform: scale(1.1);
+}
+
+.btn-fav.is-fav {
+  color: var(--red);
+  background: var(--red-dim);
+}
+
+.btn-fav.is-fav:hover {
+  background: var(--bg-3);
+  color: var(--text-2);
+}
+
+/* Favorites toolbar toggle (map) */
+.btn-fav-active {
+  background: var(--red) !important;
+  color: white !important;
+  border-color: var(--red) !important;
+}
+
+.btn-fav-active:hover {
+  filter: brightness(1.1);
+}

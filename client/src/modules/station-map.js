@@ -6,6 +6,8 @@ let markers = [];
 let userLocation = { lat: 38.4237, lng: 27.1428 };
 let directionsService = null;
 let directionsRenderer = null;
+let showFavoritesOnly = false;
+let favoriteIds = new Set();
 
 export async function renderMap(container) {
   container.innerHTML = `
@@ -22,6 +24,7 @@ export async function renderMap(container) {
         <option value="50">50 kW+</option>
         <option value="150">150 kW+</option>
       </select>
+      <button class="btn btn-ghost" id="btn-favorites"><i class="ph ph-heart"></i> Favorites</button>
       <button class="btn btn-ghost" id="btn-locate"><i class="ph ph-crosshair"></i> Locate</button>
       <button class="btn btn-ghost" id="btn-clear-route" style="display: none;"><i class="ph ph-x"></i> Clear Route</button>
     </div>
@@ -45,6 +48,15 @@ export async function renderMap(container) {
 
     document.getElementById('filter-connector').addEventListener('change', loadStations);
     document.getElementById('filter-power').addEventListener('change', loadStations);
+    document.getElementById('btn-favorites').addEventListener('click', async () => {
+      showFavoritesOnly = !showFavoritesOnly;
+      const btn = document.getElementById('btn-favorites');
+      btn.classList.toggle('btn-fav-active', showFavoritesOnly);
+      btn.innerHTML = showFavoritesOnly
+        ? '<i class="ph-fill ph-heart"></i> Favorites'
+        : '<i class="ph ph-heart"></i> Favorites';
+      await loadStations();
+    });
     document.getElementById('btn-locate').addEventListener('click', () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -112,6 +124,16 @@ async function loadStations() {
   const filterConn = document.getElementById('filter-connector').value;
   const filterPower = parseInt(document.getElementById('filter-power').value) || 0;
 
+  // Fetch favorite IDs if favorites filter is active
+  if (showFavoritesOnly) {
+    try {
+      const favStations = await api.request('/stations/favorites/list');
+      favoriteIds = new Set(favStations.map(s => s.id));
+    } catch (e) {
+      favoriteIds = new Set();
+    }
+  }
+
   try {
     const stations = await api.getStations();
     
@@ -136,6 +158,7 @@ async function loadStations() {
       );
 
       if (!hasCompatibleCharger && (filterConn || filterPower > 0)) return;
+      if (showFavoritesOnly && !favoriteIds.has(station.id)) return;
       visibleCount++;
 
       let statusColor = '#32D74B'; // System Green
@@ -190,6 +213,13 @@ window.showStationDetail = async (id) => {
   try {
     const station = await api.getStation(id);
     
+    // Check favorite status
+    let isFavorite = false;
+    try {
+      const favRes = await api.checkFavorite(id);
+      isFavorite = favRes.isFavorite;
+    } catch (e) { /* not logged in or error */ }
+    
     let chargersHtml = station.chargers.map(c => {
       const isAvailable = c.status === 'available';
       return `
@@ -211,7 +241,10 @@ window.showStationDetail = async (id) => {
     const html = `
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
         <h2 style="font-size: 18px;">${station.name}</h2>
-        <div style="display: flex; gap: 4px;">
+        <div style="display: flex; gap: 4px; align-items: center;">
+          <button id="btn-fav-${station.id}" class="btn-fav ${isFavorite ? 'is-fav' : ''}" onclick="toggleFavorite(${station.id})" title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
+            <i class="ph${isFavorite ? '-fill' : ''} ph-heart"></i>
+          </button>
           <button class="btn btn-ghost" style="padding: 4px 8px; font-size: 12px;" onclick="getDirections(${station.lat}, ${station.lng})"><i class="ph ph-navigation-arrow"></i> Directions</button>
           <button class="btn btn-ghost text-amber" style="padding: 4px 8px; font-size: 12px;" onclick="reportIssue(${station.id})"><i class="ph ph-warning-circle"></i> Report</button>
         </div>
@@ -226,6 +259,32 @@ window.showStationDetail = async (id) => {
     window.openModal(html);
   } catch (err) {
     window.showToast('Failed to load station details', 'error');
+  }
+};
+
+window.toggleFavorite = async (stationId) => {
+  const btn = document.getElementById(`btn-fav-${stationId}`);
+  if (!btn) return;
+
+  try {
+    const res = await api.toggleFavorite(stationId);
+    const icon = btn.querySelector('i');
+    if (res.isFavorite) {
+      btn.classList.add('is-fav');
+      icon.className = 'ph-fill ph-heart';
+      btn.title = 'Remove from favorites';
+      window.showToast('Added to favorites');
+    } else {
+      btn.classList.remove('is-fav');
+      icon.className = 'ph ph-heart';
+      btn.title = 'Add to favorites';
+      window.showToast('Removed from favorites');
+    }
+    // Animate
+    btn.style.transform = 'scale(1.3)';
+    setTimeout(() => btn.style.transform = '', 200);
+  } catch (err) {
+    window.showToast(err.message || 'Failed to update favorite', 'error');
   }
 };
 
