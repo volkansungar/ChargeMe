@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { getDb } = require('../db');
-const { requireRole } = require('../middleware/auth');
+const { authMiddleware, requireRole } = require('../middleware/auth');
 
-// Apply placeholder admin role check (currently a pass-through)
-// When login is implemented later, this middleware will block unauthorized access
+// All admin routes require authentication + admin role
+router.use(authMiddleware);
 router.use(requireRole('admin'));
 
 // GET /api/admin/stats - High level analytics
@@ -28,15 +28,20 @@ router.get('/stats', (req, res) => {
     if (s.status === 'completed') completedSessions = s.count;
   });
 
-  // Total Users/Vehicles (mocking users with unique vehicles)
-  const usersRes = db.prepare('SELECT COUNT(*) as count FROM vehicles').get();
-  const totalVehicles = usersRes.count;
+  // Total Users
+  const usersRes = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'user'").get();
+  const totalUsers = usersRes.count;
+
+  // Total Vehicles
+  const vehiclesRes = db.prepare('SELECT COUNT(*) as count FROM vehicles').get();
+  const totalVehicles = vehiclesRes.count;
 
   res.json({
     totalRevenue,
     totalEnergy,
     activeSessions,
     completedSessions,
+    totalUsers,
     totalVehicles
   });
 });
@@ -65,10 +70,12 @@ router.get('/utilization', (req, res) => {
 router.get('/issues', (req, res) => {
   const db = getDb();
   const issues = db.prepare(`
-    SELECT i.*, s.name as station_name, c.charger_label 
+    SELECT i.*, s.name as station_name, c.charger_label,
+           u.username as reported_by
     FROM issue_reports i
     JOIN stations s ON i.station_id = s.id
     LEFT JOIN chargers c ON i.charger_id = c.id
+    LEFT JOIN users u ON i.user_id = u.id
     ORDER BY i.created_at DESC
   `).all();
   res.json(issues);
@@ -96,7 +103,6 @@ router.get('/marketing', (req, res) => {
   `).all();
 
   // Usage habits: sessions by time of day (morning, afternoon, evening, night)
-  // Since this is SQLite, we can extract the hour from start_time
   const timeHabits = db.prepare(`
     SELECT 
       CASE 
@@ -114,6 +120,59 @@ router.get('/marketing', (req, res) => {
     topFavorites: favorites,
     timeHabits: timeHabits
   });
+});
+
+// GET /api/admin/users - List all users
+router.get('/users', (req, res) => {
+  const db = getDb();
+  const users = db.prepare(`
+    SELECT id, username, email, role, balance, created_at, last_login
+    FROM users
+    ORDER BY created_at DESC
+  `).all();
+  res.json(users);
+});
+
+// PUT /api/admin/users/:id/role - Change user role
+router.put('/users/:id/role', (req, res) => {
+  const db = getDb();
+  const { role } = req.body;
+
+  if (!role || !['user', 'admin'].includes(role)) {
+    return res.status(400).json({ error: 'Role must be "user" or "admin".' });
+  }
+
+  // Prevent self-demotion
+  if (parseInt(req.params.id) === req.user.id && role !== 'admin') {
+    return res.status(400).json({ error: 'Cannot remove your own admin privileges.' });
+  }
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found.' });
+  }
+
+  db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, req.params.id);
+  const updated = db.prepare('SELECT id, username, email, role, balance, created_at FROM users WHERE id = ?').get(req.params.id);
+  res.json(updated);
+});
+
+// DELETE /api/admin/users/:id - Delete user
+router.delete('/users/:id', (req, res) => {
+  const db = getDb();
+
+  // Prevent self-deletion
+  if (parseInt(req.params.id) === req.user.id) {
+    return res.status(400).json({ error: 'Cannot delete your own account.' });
+  }
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found.' });
+  }
+
+  db.prepare('DELETE FROM users WHERE id = ?').run(req.params.id);
+  res.json({ message: `User "${user.username}" deleted successfully.` });
 });
 
 module.exports = router;

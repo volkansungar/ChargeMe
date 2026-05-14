@@ -1,19 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const { getDb } = require('../db');
+const { authMiddleware } = require('../middleware/auth');
 
-// GET /api/wallet - Get wallet balance
+// All wallet routes require authentication
+router.use(authMiddleware);
+
+// GET /api/wallet - Get current user's wallet balance
 router.get('/', (req, res) => {
   const db = getDb();
-  const wallet = db.prepare('SELECT * FROM wallet WHERE id = 1').get();
-  if (!wallet) {
-    db.prepare('INSERT INTO wallet (id, balance) VALUES (1, 500.00)').run();
-    return res.json({ id: 1, balance: 500.00 });
+  const user = db.prepare('SELECT id, balance FROM users WHERE id = ?').get(req.user.id);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
   }
-  res.json(wallet);
+  res.json({ id: user.id, balance: user.balance });
 });
 
-// POST /api/wallet/topup - Top up wallet
+// POST /api/wallet/topup - Top up current user's wallet
 router.post('/topup', (req, res) => {
   const db = getDb();
   const { amount } = req.body;
@@ -26,10 +29,10 @@ router.post('/topup', (req, res) => {
     return res.status(400).json({ error: 'Maximum top-up amount is 10,000 TL' });
   }
 
-  db.prepare('UPDATE wallet SET balance = balance + ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1').run(amount);
-  const wallet = db.prepare('SELECT * FROM wallet WHERE id = 1').get();
+  db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(amount, req.user.id);
+  const user = db.prepare('SELECT id, balance FROM users WHERE id = ?').get(req.user.id);
   
-  res.json(wallet);
+  res.json({ id: user.id, balance: user.balance });
 });
 
 module.exports = router;

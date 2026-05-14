@@ -1,12 +1,39 @@
 const API_BASE = '/api';
 
+// Token management
+function getToken() {
+  return localStorage.getItem('auth_token');
+}
+
+function setToken(token) {
+  localStorage.setItem('auth_token', token);
+}
+
+function removeToken() {
+  localStorage.removeItem('auth_token');
+}
+
 export const api = {
-  // Global config
-  async getConfig() {
-    return this.request('/config');
+  // ── Auth ──
+  async login(username, password) {
+    return this.request('/auth/login', 'POST', { username, password }, true);
+  },
+  async register(data) {
+    return this.request('/auth/register', 'POST', data, true);
+  },
+  async getMe() {
+    return this.request('/auth/me');
+  },
+  logout() {
+    removeToken();
   },
 
-  // Vehicles
+  // ── Global config ──
+  async getConfig() {
+    return this.request('/config', 'GET', null, true);
+  },
+
+  // ── Vehicles ──
   async getVehicles() {
     return this.request('/vehicles');
   },
@@ -20,15 +47,15 @@ export const api = {
     return this.request(`/vehicles/${id}`, 'DELETE');
   },
 
-  // Stations
+  // ── Stations ──
   async getStations() {
-    return this.request('/stations');
+    return this.request('/stations', 'GET', null, true);
   },
   async getStation(id) {
-    return this.request(`/stations/${id}`);
+    return this.request(`/stations/${id}`, 'GET', null, true);
   },
 
-  // Reservations
+  // ── Reservations ──
   async getReservations() {
     return this.request('/reservations');
   },
@@ -39,7 +66,7 @@ export const api = {
     return this.request(`/reservations/${id}`, 'DELETE');
   },
 
-  // Sessions
+  // ── Sessions ──
   async getSessions() {
     return this.request('/sessions');
   },
@@ -53,7 +80,7 @@ export const api = {
     return this.request(`/sessions/${id}/end`, 'PUT', data);
   },
 
-  // Wallet
+  // ── Wallet ──
   async getWallet() {
     return this.request('/wallet');
   },
@@ -61,7 +88,15 @@ export const api = {
     return this.request('/wallet/topup', 'POST', { amount });
   },
 
-  // Admin
+  // ── Favorites ──
+  async checkFavorite(stationId) {
+    return this.request(`/stations/${stationId}/favorite`);
+  },
+  async toggleFavorite(stationId) {
+    return this.request(`/stations/${stationId}/favorite`, 'POST');
+  },
+
+  // ── Admin ──
   async getAdminStats() {
     return this.request('/admin/stats');
   },
@@ -89,15 +124,35 @@ export const api = {
   async getAdminMarketing() {
     return this.request('/admin/marketing');
   },
+  async getAdminUsers() {
+    return this.request('/admin/users');
+  },
+  async updateUserRole(userId, role) {
+    return this.request(`/admin/users/${userId}/role`, 'PUT', { role });
+  },
+  async deleteUser(userId) {
+    return this.request(`/admin/users/${userId}`, 'DELETE');
+  },
 
-  // Helper
-  async request(endpoint, method = 'GET', body = null) {
+  // ── Helper ──
+  async request(endpoint, method = 'GET', body = null, skipAuth = false) {
     const options = {
       method,
       headers: {
         'Content-Type': 'application/json'
       }
     };
+
+    // Attach JWT token if available
+    const token = getToken();
+    if (token && !skipAuth) {
+      options.headers['Authorization'] = `Bearer ${token}`;
+    }
+    // Also attach for auth endpoints that need it (like /me)
+    if (token && endpoint.startsWith('/auth/me')) {
+      options.headers['Authorization'] = `Bearer ${token}`;
+    }
+
     if (body) {
       options.body = JSON.stringify(body);
     }
@@ -107,7 +162,17 @@ export const api = {
       const data = await response.json();
       
       if (!response.ok) {
+        // Auto-logout on 401 (expired/invalid token)
+        if (response.status === 401 && !endpoint.startsWith('/auth/')) {
+          removeToken();
+          window.location.hash = '#/login';
+        }
         throw new Error(data.error || 'API request failed');
+      }
+
+      // Save token from login/register responses
+      if (data.token) {
+        setToken(data.token);
       }
       
       return data;

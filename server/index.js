@@ -15,6 +15,7 @@ app.use(express.json());
 getDb();
 
 // API Routes
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/vehicles', require('./routes/vehicles'));
 app.use('/api/stations', require('./routes/stations'));
 app.use('/api/reservations', require('./routes/reservations'));

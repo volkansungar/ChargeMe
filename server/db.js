@@ -1,5 +1,6 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const bcrypt = require('bcryptjs');
 
 const DB_PATH = path.join(__dirname, '..', 'ev_charging.db');
 
@@ -18,14 +19,27 @@ function getDb() {
 
 function initSchema() {
   db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('user', 'admin')),
+      balance REAL NOT NULL DEFAULT 500.00,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      last_login DATETIME
+    );
+
     CREATE TABLE IF NOT EXISTS vehicles (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
       brand TEXT NOT NULL,
       model TEXT NOT NULL,
       battery_capacity REAL NOT NULL,
       connector_type TEXT NOT NULL CHECK(connector_type IN ('Type 2', 'CCS', 'CHAdeMO')),
       plate_number TEXT NOT NULL UNIQUE,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS stations (
@@ -53,6 +67,7 @@ function initSchema() {
 
     CREATE TABLE IF NOT EXISTS reservations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
       vehicle_id INTEGER NOT NULL,
       charger_id INTEGER NOT NULL,
       reservation_date TEXT NOT NULL,
@@ -60,12 +75,14 @@ function initSchema() {
       end_time TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'confirmed' CHECK(status IN ('confirmed', 'active', 'completed', 'cancelled')),
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
       FOREIGN KEY (charger_id) REFERENCES chargers(id) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS sessions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
       reservation_id INTEGER,
       vehicle_id INTEGER NOT NULL,
       charger_id INTEGER NOT NULL,
@@ -77,31 +94,31 @@ function initSchema() {
       status TEXT NOT NULL DEFAULT 'charging' CHECK(status IN ('charging', 'completed')),
       started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       ended_at DATETIME,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (reservation_id) REFERENCES reservations(id),
       FOREIGN KEY (vehicle_id) REFERENCES vehicles(id),
       FOREIGN KEY (charger_id) REFERENCES chargers(id)
     );
 
-    CREATE TABLE IF NOT EXISTS wallet (
-      id INTEGER PRIMARY KEY CHECK(id = 1),
-      balance REAL NOT NULL DEFAULT 500.00,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
     CREATE TABLE IF NOT EXISTS favorites (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
       station_id INTEGER NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (station_id) REFERENCES stations(id) ON DELETE CASCADE
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (station_id) REFERENCES stations(id) ON DELETE CASCADE,
+      UNIQUE(user_id, station_id)
     );
 
     CREATE TABLE IF NOT EXISTS issue_reports (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
       station_id INTEGER NOT NULL,
       charger_id INTEGER,
       description TEXT NOT NULL,
       status TEXT DEFAULT 'open',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id),
       FOREIGN KEY (station_id) REFERENCES stations (id),
       FOREIGN KEY (charger_id) REFERENCES chargers (id)
     );
@@ -109,12 +126,27 @@ function initSchema() {
 }
 
 function seedData() {
-  // Only seed if stations table is empty
-  const count = db.prepare('SELECT COUNT(*) as c FROM stations').get();
-  if (count.c > 0) return;
+  // Only seed if users table is empty
+  const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get();
+  if (userCount.c > 0) return;
 
-  // Initialize wallet
-  db.prepare('INSERT OR IGNORE INTO wallet (id, balance) VALUES (1, 500.00)').run();
+  // Seed users
+  const adminHash = bcrypt.hashSync('admin123', 12);
+  const driverHash = bcrypt.hashSync('driver123', 12);
+
+  db.prepare(
+    'INSERT INTO users (username, email, password_hash, role, balance) VALUES (?, ?, ?, ?, ?)'
+  ).run('admin', 'admin@chargeme.com', adminHash, 'admin', 99999.00);
+
+  db.prepare(
+    'INSERT INTO users (username, email, password_hash, role, balance) VALUES (?, ?, ?, ?, ?)'
+  ).run('driver', 'driver@chargeme.com', driverHash, 'user', 500.00);
+
+  console.log('✅ Default users seeded (admin/admin123, driver/driver123)');
+
+  // Only seed stations if they don't exist
+  const stationCount = db.prepare('SELECT COUNT(*) as c FROM stations').get();
+  if (stationCount.c > 0) return;
 
   // Seed stations around İzmir
   const stations = [

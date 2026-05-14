@@ -7,7 +7,7 @@
   <title>EV Charge Network — İzmir</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles/index.css" />
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -68,14 +68,20 @@
           <i class="ph ph-moon"></i>
         </div>
 
-        <div class="nav-admin" id="nav-admin" title="Admin Portal">
+        <div class="nav-admin hidden" id="nav-admin" title="Admin Portal">
           <i class="ph ph-shield-checkered"></i>
           <span>Admin</span>
         </div>
 
-        <div class="nav-wallet" id="nav-wallet">
+        <div class="nav-wallet hidden" id="nav-wallet">
           <i class="ph ph-wallet"></i>
           <span class="wallet-balance" id="wallet-balance">₺0.00</span>
+        </div>
+
+        <div class="nav-user hidden" id="nav-user" title="Account">
+          <div class="user-avatar" id="user-avatar"></div>
+          <span class="user-name"></span>
+          <i class="ph ph-caret-down" style="font-size: 12px; opacity: 0.6;"></i>
         </div>
       </div>
     </nav>

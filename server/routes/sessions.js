@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { getDb } = require('../db');
+const { authMiddleware } = require('../middleware/auth');
 
-// GET /api/sessions - List all sessions (history)
+// All session routes require authentication
+router.use(authMiddleware);
+
+// GET /api/sessions - List current user's sessions (history)
 router.get('/', (req, res) => {
   const db = getDb();
   const sessions = db.prepare(`
@@ -14,8 +18,9 @@ router.get('/', (req, res) => {
     JOIN chargers c ON s.charger_id = c.id
     JOIN stations st ON c.station_id = st.id
     JOIN vehicles v ON s.vehicle_id = v.id
+    WHERE s.user_id = ?
     ORDER BY s.started_at DESC
-  `).all();
+  `).all(req.user.id);
   res.json(sessions);
 });
 
@@ -28,24 +33,34 @@ router.post('/start', (req, res) => {
     return res.status(400).json({ error: 'Vehicle and charger are required' });
   }
 
-  // Check wallet balance
-  const wallet = db.prepare('SELECT balance FROM wallet WHERE id = 1').get();
-  if (wallet.balance <= 0) {
+  // Verify vehicle belongs to user
+  const vehicle = db.prepare('SELECT * FROM vehicles WHERE id = ? AND user_id = ?').get(vehicle_id, req.user.id);
+  if (!vehicle) {
+    return res.status(404).json({ error: 'Vehicle not found' });
+  }
+
+  // Check user's wallet balance
+  const user = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id);
+  if (user.balance <= 0) {
     return res.status(400).json({ error: 'Insufficient wallet balance. Please top up.' });
   }
 
   // Mark reservation as active if provided
   if (reservation_id) {
-    db.prepare("UPDATE reservations SET status = 'active' WHERE id = ?").run(reservation_id);
+    // Verify reservation belongs to user
+    const reservation = db.prepare('SELECT * FROM reservations WHERE id = ? AND user_id = ?').get(reservation_id, req.user.id);
+    if (reservation) {
+      db.prepare("UPDATE reservations SET status = 'active' WHERE id = ?").run(reservation_id);
+    }
   }
 
   // Mark charger as occupied
   db.prepare("UPDATE chargers SET status = 'occupied' WHERE id = ?").run(charger_id);
 
   const result = db.prepare(`
-    INSERT INTO sessions (reservation_id, vehicle_id, charger_id, start_kwh, current_kwh)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(reservation_id || null, vehicle_id, charger_id, start_kwh || 0, start_kwh || 0);
+    INSERT INTO sessions (user_id, reservation_id, vehicle_id, charger_id, start_kwh, current_kwh)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(req.user.id, reservation_id || null, vehicle_id, charger_id, start_kwh || 0, start_kwh || 0);
 
   const session = db.prepare(`
     SELECT s.*,
@@ -71,8 +86,8 @@ router.put('/:id/update', (req, res) => {
     SELECT s.*, c.price_per_kwh
     FROM sessions s
     JOIN chargers c ON s.charger_id = c.id
-    WHERE s.id = ?
-  `).get(req.params.id);
+    WHERE s.id = ? AND s.user_id = ?
+  `).get(req.params.id, req.user.id);
 
   if (!session) return res.status(404).json({ error: 'Session not found' });
   if (session.status === 'completed') return res.status(400).json({ error: 'Session already completed' });
@@ -109,8 +124,8 @@ router.put('/:id/end', (req, res) => {
     SELECT s.*, c.price_per_kwh, c.charger_label
     FROM sessions s
     JOIN chargers c ON s.charger_id = c.id
-    WHERE s.id = ?
-  `).get(req.params.id);
+    WHERE s.id = ? AND s.user_id = ?
+  `).get(req.params.id, req.user.id);
 
   if (!session) return res.status(404).json({ error: 'Session not found' });
   if (session.status === 'completed') return res.status(400).json({ error: 'Session already completed' });
@@ -126,8 +141,8 @@ router.put('/:id/end', (req, res) => {
     WHERE id = ?
   `).run(finalKwh, consumed, cost, req.params.id);
 
-  // Deduct from wallet
-  db.prepare('UPDATE wallet SET balance = balance - ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1').run(cost);
+  // Deduct from user's wallet
+  db.prepare('UPDATE users SET balance = balance - ? WHERE id = ?').run(cost, req.user.id);
 
   // Mark reservation as completed if exists
   if (session.reservation_id) {
@@ -149,9 +164,9 @@ router.put('/:id/end', (req, res) => {
     WHERE s.id = ?
   `).get(req.params.id);
 
-  const wallet = db.prepare('SELECT balance FROM wallet WHERE id = 1').get();
+  const user = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id);
 
-  res.json({ session: completed, wallet_balance: wallet.balance });
+  res.json({ session: completed, wallet_balance: user.balance });
 });
 
 module.exports = router;
